@@ -22,7 +22,7 @@
                         </p>
                     </div>
                     <div class="row col-mb-6">
-                        <form action="#" method="post">
+                        <form action="<%=request.getContextPath()%>/LoginServlet" method="post">
                             <div class="form-group ">
                                 <div class="row m-1">
                                     <input class="form-control" type="text" name="Username" id="Username"
@@ -38,13 +38,16 @@
                                     </div>
                                 </div>
                             </div>
+                            <c:if test="${not empty errorMessage}">
+                            	<p class="error text text-danger text-center mt-5">${errorMessage}</p>
+                            </c:if>
                         </form>
                     </div>
 
                 </div>
             </div>
             <div class="col-md-4 bg-light">
-                <img class="img-fluid" src="../images/bg_1.jpg" width="500">
+                <img class="img-fluid" src="<%=request.getContextPath()%>/images/bg_1.jpg" width="500">
             </div>
         </div>
     </div>
