@@ -1,0 +1,13 @@
+.background-image-div {
+    background-image: url("../images/outsource-call-center-consulting-services.jpg");
+    background-size: cover; /* Adjust how the background image is displayed */
+    background-position: center center; /* Center the background image */
+    background-repeat: no-repeat; /* Prevent the background image from repeating */
+    width: 100%; /* Set the width of the div */
+    height: 400px; /* Set the height of the div (adjust as needed) */
+}
+
+.green{
+   color: #6aef92;;
+}
+
