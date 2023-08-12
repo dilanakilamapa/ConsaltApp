@@ -4,7 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
+import java.util.List;
+import java.util.ArrayList;
 
 import com.Model.Role;
 import com.dbConnection.*;
@@ -18,6 +19,7 @@ public class RoleDAO {
 
     private static final String INSERT_ROLE_SQL = "INSERT INTO rols (Role_name) VALUES (?)";
     private static final String SELECT_ROLE_BY_ID = "SELECT * FROM rols WHERE id = ?";
+    private static final String SELECT_ALL_ROLE = "SELECT * FROM rols";
 
     public void addRole(Role role) throws SQLException {
         try (Connection connection = dbConnection.getConnection();
@@ -45,5 +47,23 @@ public class RoleDAO {
             e.printStackTrace();
         }
         return role;
+    }
+    
+    public List<Role> selectAllRoles() {
+        List<Role> rolesList = new ArrayList<>();
+        try {
+            Connection connection = dbConnection.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_ROLE);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String role_name = rs.getString("Role_name");
+                rolesList.add(new Role(id, role_name));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return rolesList;
     }
 }

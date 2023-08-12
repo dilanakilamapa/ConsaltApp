@@ -9,7 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.DAO.RoleDAO;
 import com.DAO.UserDAO;
+import com.Model.Role;
 import com.Model.User;
 
 /**
@@ -19,11 +21,13 @@ import com.Model.User;
 public class UserServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private UserDAO userDAO;
+	private RoleDAO roleDAO;
     /**
      * @see HttpServlet#HttpServlet()
      */
     public UserServlet() {
     	 userDAO = new UserDAO();
+    	 roleDAO = new RoleDAO();
     }
 
 	/**
@@ -82,24 +86,27 @@ public class UserServlet extends HttpServlet {
 	
 	private void listUsers(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<User> usersList = userDAO.selectAllUsers();
-        request.setAttribute("usersList", usersList);
-        request.getRequestDispatcher("user-list.jsp").forward(request, response);
+        List<User> users = userDAO.selectAllUsers();
+        request.setAttribute("users", users);
+        request.getRequestDispatcher("Admin/User/ShowAllUsers.jsp").forward(request, response);
     }
 
     private void showAddForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("add-user.jsp").forward(request, response);
+    	List<Role> roles = roleDAO.selectAllRoles();
+    	 request.setAttribute("roles", roles);
+        request.getRequestDispatcher("Admin/User/AddUser.jsp").forward(request, response);
+        
     }
 
     private void addUser(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
-    	String f_name = request.getParameter("f_name");
-        String l_name = request.getParameter("l_name");
-        String address = request.getParameter("address");
-        int contact_01 = Integer.parseInt(request.getParameter("contact_01"));
-        int contact_02 = Integer.parseInt(request.getParameter("contact_02"));
-        java.sql.Date dob = java.sql.Date.valueOf(request.getParameter("dob"));
+    	String f_name = request.getParameter("F_name");
+        String l_name = request.getParameter("L_name");
+        String address = request.getParameter("Address");
+        int contact_01 = Integer.parseInt(request.getParameter("phone_number01"));
+        int contact_02 = Integer.parseInt(request.getParameter("phone_number02"));
+        java.sql.Date dob = java.sql.Date.valueOf(request.getParameter("DOB"));
         int role_id = Integer.parseInt(request.getParameter("role_id"));
 
         User newUser = new User(f_name, l_name, address, contact_01, contact_02, dob, role_id);
@@ -111,20 +118,23 @@ public class UserServlet extends HttpServlet {
     private void showUpdateForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int userId = Integer.parseInt(request.getParameter("id"));
+        System.out.println("update id " + userId);
         User user = userDAO.getUserById(userId);
+        List<Role> roles = roleDAO.selectAllRoles();
+   	 	request.setAttribute("roles", roles);
         request.setAttribute("user", user);
-        request.getRequestDispatcher("update-user.jsp").forward(request, response);
+        request.getRequestDispatcher("Admin/User/UpdateUser.jsp").forward(request, response);
     }
 
     private void updateUser(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-    	int userId = Integer.parseInt(request.getParameter("id"));
-        String f_name = request.getParameter("f_name");
-        String l_name = request.getParameter("l_name");
-        String address = request.getParameter("address");
-        int contact_01 = Integer.parseInt(request.getParameter("contact_01"));
-        int contact_02 = Integer.parseInt(request.getParameter("contact_02"));
-        java.sql.Date dob = java.sql.Date.valueOf(request.getParameter("dob"));
+    	int userId = Integer.parseInt(request.getParameter("ID"));
+        String f_name = request.getParameter("F_name");
+        String l_name = request.getParameter("L_name");
+        String address = request.getParameter("Address");
+        int contact_01 = Integer.parseInt(request.getParameter("phone_number01"));
+        int contact_02 = Integer.parseInt(request.getParameter("phone_number02"));
+        java.sql.Date dob = java.sql.Date.valueOf(request.getParameter("DOB"));
         int role_id = Integer.parseInt(request.getParameter("role_id"));
 
         User user = new User(userId, f_name, l_name, address, contact_01, contact_02, dob, role_id);
@@ -141,6 +151,7 @@ public class UserServlet extends HttpServlet {
     private void deleteUser(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int userId = Integer.parseInt(request.getParameter("id"));
+        System.out.println("Delete id " +userId);
         try {
 			userDAO.deleteUser(userId);
 		} catch (SQLException e) {
