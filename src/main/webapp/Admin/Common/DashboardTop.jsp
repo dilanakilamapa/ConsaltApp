@@ -44,8 +44,19 @@
                                     <li class="nav-item">
                                         <a class="nav-link" href="#">Appoinment</a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="#">Specialization</a>
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
+                                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Specialization
+                                        </a>
+                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                            <li><a class="dropdown-item"
+                                                    href="<%= request.getContextPath() %>/SpecializationServlet?parameter=list">List
+                                                    Specialization</a></li>
+                                            <li><a class="dropdown-item"
+                                                    href="<%= request.getContextPath() %>/SpecializationServlet?parameter=showAddForm">Add
+                                                    Specialization</a></li>
+                                        </ul>
                                     </li>
                                 </ul>
                                 <span class="navbar-text">

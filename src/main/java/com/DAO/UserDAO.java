@@ -22,7 +22,7 @@ public class UserDAO {
     private static final String SELECT_ALL_USERS = "SELECT * FROM user WHERE is_delete ='false'";
     private static final String DELETE_USER_SQL = "UPDATE user SET is_delete = 'true' WHERE ID = ?";
     private static final String UPDATE_USER_SQL = "UPDATE user SET F_name = ?, L_name = ?, Address = ?, Contact_01 = ?, Contact_02 = ?, DOB = ?, role_id = ? WHERE Id = ?";
-
+    private static final String SELECT_ALL_CONSULTANT = "SELECT * FROM USER WHERE role_id = 3";
     public void addUser(User user) throws SQLException {
         try (Connection connection = dbConnection.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USER_SQL)) {
@@ -116,5 +116,29 @@ public class UserDAO {
             e.printStackTrace();
         }
         return rowUpdated;
+    }
+    
+    public List<User> selectAllConsultant() {
+        List<User> userList = new ArrayList<>();
+        try {
+            Connection connection = dbConnection.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_CONSULTANT);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("Id");
+                String f_name = rs.getString("F_name");
+                String l_name = rs.getString("L_name");
+                String address = rs.getString("Address");
+                int contact_01 = rs.getInt("Contact_01");
+                int contact_02 = rs.getInt("Contact_02");
+                java.sql.Date dob = rs.getDate("DOB");
+                int role_id = rs.getInt("role_id");
+                userList.add(new User(id, f_name, l_name, address, contact_01, contact_02, dob, role_id));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return userList;
     }
 }
