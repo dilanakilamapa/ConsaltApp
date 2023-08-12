@@ -19,8 +19,8 @@ public class UserDAO {
 
     private static final String INSERT_USER_SQL = "INSERT INTO user (F_name, L_name, Address, Contact_01, Contact_02, DOB, role_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String SELECT_USER_BY_ID = "SELECT * FROM user WHERE Id = ?";
-    private static final String SELECT_ALL_USERS = "SELECT * FROM user";
-    private static final String DELETE_USER_SQL = "DELETE FROM user WHERE Id = ?";
+    private static final String SELECT_ALL_USERS = "SELECT * FROM user WHERE is_delete ='false'";
+    private static final String DELETE_USER_SQL = "UPDATE user SET is_delete = 'true' WHERE ID = ?";
     private static final String UPDATE_USER_SQL = "UPDATE user SET F_name = ?, L_name = ?, Address = ?, Contact_01 = ?, Contact_02 = ?, DOB = ?, role_id = ? WHERE Id = ?";
 
     public void addUser(User user) throws SQLException {
