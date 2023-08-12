@@ -58,6 +58,20 @@
                                                     Specialization</a></li>
                                         </ul>
                                     </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
+                                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Job Seeker
+                                        </a>
+                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                            <li><a class="dropdown-item"
+                                                    href="<%= request.getContextPath() %>/JobseekerServlet?parameter=list">List
+                                                    Job Seeker</a></li>
+                                            <li><a class="dropdown-item"
+                                                    href="<%= request.getContextPath() %>/JobseekerServlet?parameter=showAddForm">Add
+                                                    Job Seeker</a></li>
+                                        </ul>
+                                    </li>
                                 </ul>
                                 <span class="navbar-text">
                                     <%=roleName %>
