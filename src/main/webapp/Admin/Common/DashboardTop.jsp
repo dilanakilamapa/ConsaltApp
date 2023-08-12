@@ -72,6 +72,20 @@
                                                     Job Seeker</a></li>
                                         </ul>
                                     </li>
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
+                                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            Consultant Availability
+                                        </a>
+                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                            <li><a class="dropdown-item"
+                                                    href="<%= request.getContextPath() %>/ConsultantAvailabilityServlet?parameter=list&user_ID=0">List
+                                                    Consultant Availability</a></li>
+                                            <li><a class="dropdown-item"
+                                                    href="<%= request.getContextPath() %>/ConsultantAvailabilityServlet?parameter=showAddForm">Add
+                                                    Consultant Availability</a></li>
+                                        </ul>
+                                    </li>
                                 </ul>
                                 <span class="navbar-text">
                                     <%=roleName %>
