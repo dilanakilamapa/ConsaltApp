@@ -23,6 +23,10 @@ public class SpecializationDAO {
 	    private static final String DELETE_SPECIALIZATION_SQL = "DELETE FROM specialization WHERE id = ?";
 	    private static final String UPDATE_SPECIALIZATION_SQL = "UPDATE specialization SET User_ID = ?, Country_id = ?, Job_Title_id = ? WHERE id = ?";
 	    private static final String SELECT_SPECIALIZATION_WITH_NAME = "SELECT specialization.ID , specialization.User_ID , user.F_name , user.L_name , specialization.Country_id , country.country_name , specialization.Job_Title_id , job.Job_name FROM db_appointment.specialization INNER JOIN db_appointment.country ON (specialization.Country_id = country.id) INNER JOIN db_appointment.job ON (specialization.Job_Title_id = job.job_id) INNER JOIN db_appointment.user ON (specialization.User_ID = user.ID);";
+	    private static final String SELECT_SPECIALIZATION_COUNTRY_BY_USER_ID = "SELECT specialization.Country_id , country.country_name FROM db_appointment.specialization INNER JOIN db_appointment.country ON (specialization.Country_id = country.id) WHERE specialization.User_ID = ? GROUP BY  country.country_name";
+	    private static final String SELECT_SPECIALIZATION_COUNTRY_BY_COUNTRY_ID = "SELECT specialization.Job_Title_id , job.Job_name FROM db_appointment.specialization INNER JOIN db_appointment.job ON (specialization.Job_Title_id = job.job_id) WHERE Country_id= ? GROUP BY Job_Title_id;";
+	    private static final String SELECT_SPECIALIZATION_ALL_COUNTRY = "SELECT specialization.Country_id , country.country_name FROM db_appointment.specialization INNER JOIN db_appointment.country ON (specialization.Country_id = country.id) GROUP BY specialization.Country_id;";
+	    private static final String SELECT_SPECIALIZATION_USER_USING_COUNTRY_AND_JOB = "SELECT specialization.User_ID , user.F_name , user.L_name FROM db_appointment.specialization INNER JOIN db_appointment.user ON (specialization.User_ID = user.ID) WHERE specialization.Country_id =? AND specialization.Job_Title_id = ?;";
 	    
 	    public void addSpecialization(specialization spec) throws SQLException {
 	        try (Connection connection = dbConnection.getConnection();
@@ -127,5 +131,89 @@ public class SpecializationDAO {
 	        }
 	        return specList;
 	    }
+	    
+	    public List<specialization> SELECT_SPECIALIZATION_COUNTRY_BY_USER_ID(int User_ID) {
+	    	//System.out.println(User_ID);
+	    	List<specialization> specList = new ArrayList<>();
+	        try {
+	            Connection connection = dbConnection.getConnection();
+	            PreparedStatement preparedStatement = connection.prepareStatement(SELECT_SPECIALIZATION_COUNTRY_BY_USER_ID);
+	            preparedStatement.setInt(1, User_ID);
+	            ResultSet rs = preparedStatement.executeQuery();
+
+	            while (rs.next()) {
+	                int country_id = rs.getInt("Country_id");
+	                String Country_name = rs.getString("country_name");
+	                specList.add( new specialization(country_id, Country_name));
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	        return specList;
+	    }
+	    
+	    public List<specialization> SELECT_SPECIALIZATION_COUNTRY_BY_COUNTRY_ID(int User_ID) {
+	    	System.out.println(User_ID);
+	    	List<specialization> specList = new ArrayList<>();
+	        try {
+	            Connection connection = dbConnection.getConnection();
+	            PreparedStatement preparedStatement = connection.prepareStatement(SELECT_SPECIALIZATION_COUNTRY_BY_COUNTRY_ID);
+	            preparedStatement.setInt(1, User_ID);
+	            ResultSet rs = preparedStatement.executeQuery();
+
+	            while (rs.next()) {
+	                int job_id = rs.getInt("Job_Title_id");
+	                String job_name = rs.getString("Job_name");
+	                specList.add( new specialization(job_name, job_id));
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	        return specList;
+	    }
+	    
+	    //SELECT_SPECIALIZATION_ALL_COUNTRY
+	    
+	    public List<specialization> SELECT_SPECIALIZATION_ALL_COUNTRY() {
+	    	List<specialization> specList = new ArrayList<>();
+	        try {
+	            Connection connection = dbConnection.getConnection();
+	            PreparedStatement preparedStatement = connection.prepareStatement(SELECT_SPECIALIZATION_ALL_COUNTRY);
+	            ResultSet rs = preparedStatement.executeQuery();
+
+	            while (rs.next()) {
+	            	int country_id = rs.getInt("Country_id");
+	                String Country_name = rs.getString("country_name");
+	                specList.add( new specialization(country_id, Country_name));
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	        return specList;
+	    }
+	    
+	    //SELECT_SPECIALIZATION_USER_USING_COUNTRY_AND_JOB
+	    
+	    public List<specialization> SELECT_SPECIALIZATION_USER_USING_COUNTRY_AND_JOB(int country_id, int Job_id) {
+	    	List<specialization> specList = new ArrayList<>();
+	        try {
+	            Connection connection = dbConnection.getConnection();
+	            PreparedStatement preparedStatement = connection.prepareStatement(SELECT_SPECIALIZATION_USER_USING_COUNTRY_AND_JOB);
+	            preparedStatement.setInt(1, country_id);
+	            preparedStatement.setInt(2, Job_id);
+	            ResultSet rs = preparedStatement.executeQuery();
+
+	            while (rs.next()) {
+	            	int User_id = rs.getInt("User_ID");
+	                String User_first_name = rs.getString("F_name");
+	                String User_last_name = rs.getString("L_name");
+	                specList.add( new specialization(User_id, User_first_name, User_last_name));
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	        return specList;
+	    }
+	    
 
 }

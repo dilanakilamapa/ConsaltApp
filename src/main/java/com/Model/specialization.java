@@ -10,6 +10,22 @@ public class specialization {
 	private int Job_Title_id;
 	private String Job_Name;
 	
+	public specialization(int user_ID, String user_F_Name, String user_L_Name) {
+		User_ID = user_ID;
+		User_F_Name = user_F_Name;
+		User_L_Name = user_L_Name;
+	}
+
+	public specialization(int country_id, String country_Name) {
+		Country_id = country_id;
+		Country_Name = country_Name;
+	}
+	
+	public specialization(String job_Name, int job_Title_id) {
+		Job_Title_id = job_Title_id;
+		Job_Name = job_Name;
+	}
+
 	public specialization(int id, int user_ID, String user_F_Name, String user_L_Name, int country_id,
 			String country_Name, int job_Title_id, String job_Name) {
 		this.id = id;

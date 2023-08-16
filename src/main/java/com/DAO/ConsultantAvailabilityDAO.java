@@ -1,6 +1,7 @@
 package com.DAO;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,13 +17,13 @@ public class ConsultantAvailabilityDAO {
     public ConsultantAvailabilityDAO() {
         dbConnection = new dbConnection();
     }
-
     private static final String INSERT_CONSULTANT_AVAILABILITY_SQL = "INSERT INTO consultant_availability (User_ID, DATE, Start_Time, End_Time) VALUES (?, ?, ?, ?)";
     private static final String SELECT_CONSULTANT_AVAILABILITY_BY_ID = "SELECT * FROM consultant_availability WHERE ID = ?";
     private static final String SELECT_ALL_CONSULTANT_AVAILABILITIES = "SELECT * FROM consultant_availability ";
     private static final String DELETE_CONSULTANT_AVAILABILITY_SQL = "DELETE FROM consultant_availability WHERE ID = ?";
     private static final String UPDATE_CONSULTANT_AVAILABILITY_SQL = "UPDATE consultant_availability SET  DATE = ?, Start_Time = ?, End_Time = ? WHERE ID = ?";
     private static final String SELECT_ALL_CONSULTANT_AVAILABILITIES_WITH_NAME ="SELECT consultant_availability.ID , consultant_availability.User_ID , user.F_name , user.L_name , consultant_availability.Date , consultant_availability.Start_Time , consultant_availability.End_Time FROM db_appointment.consultant_availability INNER JOIN db_appointment.user ON (consultant_availability.User_ID = user.ID) WHERE User_ID =?;";
+    private static final String SELECT_START_AND_END_TIME_BY_DATE ="SELECT * FROM consultant_availability WHERE DATE = ?";
     
     public void addConsultantAvailability(ConsultantAvailability consultantAvailability) throws SQLException {
         try (Connection connection = dbConnection.getConnection();
@@ -125,6 +126,28 @@ public class ConsultantAvailabilityDAO {
                 java.sql.Time start_Time = rs.getTime("Start_Time");
                 java.sql.Time end_Time = rs.getTime("End_Time");
                 consultantAvailabilityList.add(new ConsultantAvailability(ID, user_ID, F_name, L_name, DATE, start_Time, end_Time));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return consultantAvailabilityList;
+    }
+    
+    public List<ConsultantAvailability> SELECT_START_AND_END_TIME_BY_DATE(Date date) {
+        List<ConsultantAvailability> consultantAvailabilityList = new ArrayList<>();
+        try {
+            Connection connection = dbConnection.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(SELECT_START_AND_END_TIME_BY_DATE);
+            preparedStatement.setDate(1, date);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                int ID = rs.getInt("ID");
+                int user_ID = rs.getInt("User_ID");
+                java.sql.Date DATE = rs.getDate("DATE");
+                java.sql.Time start_Time = rs.getTime("Start_Time");
+                java.sql.Time end_Time = rs.getTime("End_Time");
+                consultantAvailabilityList.add(new ConsultantAvailability(ID, user_ID, DATE, start_Time, end_Time));
             }
         } catch (Exception e) {
             e.printStackTrace();
