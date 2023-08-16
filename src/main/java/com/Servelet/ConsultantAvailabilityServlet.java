@@ -1,6 +1,7 @@
 package com.Servelet;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -14,6 +15,10 @@ import com.DAO.ConsultantAvailabilityDAO;
 import com.DAO.UserDAO;
 import com.Model.ConsultantAvailability;
 import com.Model.User;
+import com.google.gson.Gson;
+
+
+
 
 /**
  * Servlet implementation class ConsultantAvailabilityServlet
@@ -44,6 +49,12 @@ public class ConsultantAvailabilityServlet extends HttpServlet {
         }
 
         switch (parameter) {
+        	case "getTime":
+        	getTime(request, response);
+            break;
+            case "getDates":
+            	getDates(request, response);
+                break;
             case "list":
                 listConsultantAvailabilities(request, response);
                 break;
@@ -81,6 +92,33 @@ public class ConsultantAvailabilityServlet extends HttpServlet {
                 listConsultantAvailabilities(request, response);
         }
 	}
+	
+	private void getDates(HttpServletRequest request, HttpServletResponse response)
+	        throws ServletException, IOException {
+		int user_ID = Integer.parseInt(request.getParameter("id"));
+	    List<ConsultantAvailability> consultantAvailabilityList = consultantAvailabilityDAO.selectAllConsultantAvailabilitiesWithName(user_ID);
+	    
+	    String json = new Gson().toJson(consultantAvailabilityList);
+	    response.setContentType("application/json");
+	    response.setCharacterEncoding("UTF-8");
+	    response.getWriter().write(json);
+	    return;
+	    
+	}
+	
+	private void getTime(HttpServletRequest request, HttpServletResponse response)
+	        throws ServletException, IOException {
+		Date user_ID = java.sql.Date.valueOf(request.getParameter("date"));
+		System.out.println(user_ID);
+	    List<ConsultantAvailability> consultantAvailabilityList = consultantAvailabilityDAO.SELECT_START_AND_END_TIME_BY_DATE(user_ID);
+	    System.out.println(consultantAvailabilityList);
+	    String json = new Gson().toJson(consultantAvailabilityList);
+	    response.setContentType("application/json");
+	    response.setCharacterEncoding("UTF-8");
+	    response.getWriter().write(json);
+	    return;
+	    
+	}
 
 	private void deleteConsultantAvailability(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
 		int availabilityId = Integer.parseInt(request.getParameter("id"));
@@ -93,9 +131,7 @@ public class ConsultantAvailabilityServlet extends HttpServlet {
         java.sql.Date DATE = java.sql.Date.valueOf(request.getParameter("DATE"));
         java.sql.Time start_Time = java.sql.Time.valueOf(request.getParameter("start_Time"));
         java.sql.Time end_Time = java.sql.Time.valueOf(request.getParameter("end_Time"));
-        
-        
-        
+
         ConsultantAvailability updatedAvailability = new ConsultantAvailability(DATE, start_Time, end_Time, availabilityId);
         Boolean abc = consultantAvailabilityDAO.updateConsultantAvailability(updatedAvailability);
         System.out.println("Update "+availabilityId + " " + DATE + " " + start_Time + " " + end_Time + " " +abc);

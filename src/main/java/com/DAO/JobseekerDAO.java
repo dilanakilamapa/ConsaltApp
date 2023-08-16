@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,10 +32,38 @@ public class JobseekerDAO {
             preparedStatement.setString(3, jobseeker.getEmail());
             preparedStatement.setInt(4, jobseeker.getPhone_Number());
             preparedStatement.executeUpdate();
+            System.out.println(preparedStatement);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    
+    public int addJobseekerReurnID(Jobseeker jobseeker) throws SQLException {
+        int generatedId = -1; 
+
+        try (Connection connection = dbConnection.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(INSERT_JOBSEEKER_SQL, Statement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setString(1, jobseeker.getFirst_Name());
+            preparedStatement.setString(2, jobseeker.getLast_Name());
+            preparedStatement.setString(3, jobseeker.getEmail());
+            preparedStatement.setInt(4, jobseeker.getPhone_Number());
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                // Retrieve the generated keys
+                try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        generatedId = generatedKeys.getInt(1);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return generatedId; 
+    }
+
 
     public Jobseeker getJobseekerById(int jobSeekersId) {
         Jobseeker jobseeker = null;

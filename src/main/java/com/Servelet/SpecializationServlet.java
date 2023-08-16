@@ -17,6 +17,7 @@ import com.Model.Country;
 import com.Model.Job;
 import com.Model.User;
 import com.Model.specialization;
+import com.google.gson.Gson;
 
 /**
  * Servlet implementation class SpecializationServlet
@@ -73,9 +74,31 @@ public class SpecializationServlet extends HttpServlet {
             case "delete":
                 deleteSpecialization(request, response);
                 break;
+            case "GetCountryByUser":
+            	GetCountryByUser(request, response);
+            	break;
+            case "GetJobNameByCountry":
+            	GetJobNameByCountry(request, response);
+            	break;
+            case "GetUserByCountryANDjob":
+            	GetUserByCountryANDjob(request, response);
+            	break;
             default:
                 listSpecializations(request, response);
         }
+	}
+
+	private void GetUserByCountryANDjob(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		int Coun_id = Integer.parseInt(request.getParameter("Coun_id"));
+		int Job_ID = Integer.parseInt(request.getParameter("Job_id"));
+        List<specialization> specializations = specializationDAO.SELECT_SPECIALIZATION_USER_USING_COUNTRY_AND_JOB(Coun_id,Job_ID);
+       
+        String json = new Gson().toJson(specializations);
+	    response.setContentType("application/json");
+	    response.setCharacterEncoding("UTF-8");
+	    response.getWriter().write(json);
+	    return;
+		
 	}
 
 	/**
@@ -157,6 +180,30 @@ public class SpecializationServlet extends HttpServlet {
 	            e.printStackTrace();
 	        }
 	        response.sendRedirect("SpecializationServlet");
+	    }
+	    
+	    private void GetCountryByUser(HttpServletRequest request, HttpServletResponse response)
+	            throws ServletException, IOException {
+	        int USerID = Integer.parseInt(request.getParameter("User_id"));
+	        List<specialization> specializations = specializationDAO.SELECT_SPECIALIZATION_COUNTRY_BY_USER_ID(USerID);
+	       
+	        String json = new Gson().toJson(specializations);
+		    response.setContentType("application/json");
+		    response.setCharacterEncoding("UTF-8");
+		    response.getWriter().write(json);
+		    return;
+	    }
+	    
+	    private void GetJobNameByCountry(HttpServletRequest request, HttpServletResponse response)
+	            throws ServletException, IOException {
+	        int USerID = Integer.parseInt(request.getParameter("Coun_id"));
+	        List<specialization> specializations = specializationDAO.SELECT_SPECIALIZATION_COUNTRY_BY_COUNTRY_ID(USerID);
+	       
+	        String json = new Gson().toJson(specializations);
+		    response.setContentType("application/json");
+		    response.setCharacterEncoding("UTF-8");
+		    response.getWriter().write(json);
+		    return;
 	    }
 
 }

@@ -14,6 +14,7 @@
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
                     integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
                     crossorigin="anonymous">
+                
             </head>
             <body>
                 <header>
@@ -41,8 +42,20 @@
                                                     User</a></li>
                                         </ul>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" href="#">Appoinment</a>
+                                    
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
+                                            role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                             Appointment
+                                        </a>
+                                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                            <li><a class="dropdown-item"
+                                                    href="<%= request.getContextPath() %>/AppointmentServlet?parameter=list&user_ID=0">List
+                                                    Appointment</a></li>
+                                            <li><a class="dropdown-item"
+                                                    href="<%= request.getContextPath() %>/AppointmentServlet?parameter=showAddForm&user_ID=0">Add
+                                                    Appointment</a></li>
+                                        </ul>
                                     </li>
                                     <li class="nav-item dropdown">
                                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
