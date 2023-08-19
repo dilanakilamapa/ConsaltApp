@@ -3,13 +3,23 @@ package com.Model;
 import java.sql.Date;
 import java.sql.Time;
 
+import javax.validation.constraints.NotNull;
+
 public class ConsultantAvailability {
 	private int ID;
+	
+	@NotNull(message = "Select a Consultant")
 	private int User_ID;
 	private String F_name;
 	private String L_name;
+	
+	@NotNull(message = "Date should not be null")
 	private Date DATE;
+	
+	@NotNull(message = "Start Time should not be null")
 	private Time Start_Time;
+	
+	@NotNull(message = "End Time should not be null")
 	private Time End_Time;
 	
 	public ConsultantAvailability(int iD, int user_ID, Date dATE, Time start_Time, Time end_Time) {

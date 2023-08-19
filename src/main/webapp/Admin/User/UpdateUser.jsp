@@ -69,6 +69,13 @@
                   <input class="btn btn-warning" type="reset" value="Clear">
                 </div>
               </div>
+              <div class="row mt-3 justify-content-center">
+                <div class="col-3">
+                  <c:if test="${not empty errors}">
+                  	<ul class="error text text-danger">${errors}</ul>
+                  </c:if>
+                </div>
+              </div>
             </div>
           </div>
         </div>

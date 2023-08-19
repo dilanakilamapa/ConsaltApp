@@ -3,6 +3,8 @@ package com.Servelet;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -16,6 +18,7 @@ import com.DAO.UserDAO;
 import com.Model.ConsultantAvailability;
 import com.Model.User;
 import com.google.gson.Gson;
+import com.validator.EntityValidator;
 
 
 
@@ -126,30 +129,109 @@ public class ConsultantAvailabilityServlet extends HttpServlet {
         response.sendRedirect("/ConsultAppoinmentWebApp/ConsultantAvailabilityServlet?parameter=list&user_ID="+0);
 	}
 
-	private void updateConsultantAvailability(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+	private void updateConsultantAvailability(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
+		List<String> errors1 = new ArrayList<>();
+		
 		int availabilityId = Integer.parseInt(request.getParameter("id"));
         java.sql.Date DATE = java.sql.Date.valueOf(request.getParameter("DATE"));
         java.sql.Time start_Time = java.sql.Time.valueOf(request.getParameter("start_Time"));
         java.sql.Time end_Time = java.sql.Time.valueOf(request.getParameter("end_Time"));
+        
+
+        if (DATE == null) {
+            errors1.add("Date should not be null.");
+        } else {
+            
+            java.sql.Date today = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+            System.out.println("Today" + today);
+            if (DATE.equals(today) || DATE.before(today)) {
+                errors1.add("Date should not be today or befor day.");
+            }
+        }
+
+        if (start_Time != null && end_Time != null && start_Time.after(end_Time)) {
+            errors1.add("Start time should be after end time.");
+        }
 
         ConsultantAvailability updatedAvailability = new ConsultantAvailability(DATE, start_Time, end_Time, availabilityId);
-        Boolean abc = consultantAvailabilityDAO.updateConsultantAvailability(updatedAvailability);
-        System.out.println("Update "+availabilityId + " " + DATE + " " + start_Time + " " + end_Time + " " +abc);
-        response.sendRedirect("/ConsultAppoinmentWebApp/ConsultantAvailabilityServlet?parameter=list&user_ID="+0);
+        
+        EntityValidator<ConsultantAvailability> validator = new EntityValidator();
+        List<String> errors = validator.validate(updatedAvailability);
+        
+        if(!errors.isEmpty()) {
+        	request.setAttribute("errors", errors);
+        	request.setAttribute("availability", updatedAvailability);
+    	    request.getRequestDispatcher("Admin/ConsultantAvailabilities/update_consultant_availability.jsp").forward(request, response);
+        }
+        else {
+        	
+        	if (!errors1.isEmpty()) {
+        		request.setAttribute("errors", errors1);
+        		request.setAttribute("availability", updatedAvailability);
+        	    request.getRequestDispatcher("Admin/ConsultantAvailabilities/update_consultant_availability.jsp").forward(request, response);
+        	} else {
+        		Boolean abc = consultantAvailabilityDAO.updateConsultantAvailability(updatedAvailability);
+                System.out.println("Update "+availabilityId + " " + DATE + " " + start_Time + " " + end_Time + " " +abc);
+                response.sendRedirect("/ConsultAppoinmentWebApp/ConsultantAvailabilityServlet?parameter=list&user_ID="+0);
+        	}
+        	
+        }
 	}
 
-	private void addConsultantAvailability(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException {
+	private void addConsultantAvailability(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
+		List<String> errors1 = new ArrayList<>();
+		
 		int user_ID = Integer.parseInt(request.getParameter("user_ID"));
         java.sql.Date DATE = java.sql.Date.valueOf(request.getParameter("DATE"));
         java.sql.Time start_Time = java.sql.Time.valueOf(request.getParameter("start_Time")+":00");
         java.sql.Time end_Time = java.sql.Time.valueOf(request.getParameter("end_Time")+":00");
         
         System.out.println(user_ID + " " + DATE + " " + start_Time + " " + end_Time );
+        
+        if (user_ID == 0) {
+            errors1.add("User ID should not be 0.");
+        }
+
+        if (DATE == null) {
+            errors1.add("Date should not be null.");
+        } else {
+            
+            java.sql.Date today = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+            System.out.println("Today" + today);
+            if (DATE.equals(today) || DATE.before(today)) {
+                errors1.add("Date should not be today or befor day.");
+            }
+        }
+
+        if (start_Time != null && end_Time != null && start_Time.after(end_Time)) {
+            errors1.add("Start time should be after end time.");
+        }
 
         ConsultantAvailability newAvailability = new ConsultantAvailability(user_ID, DATE, start_Time, end_Time);
-        consultantAvailabilityDAO.addConsultantAvailability(newAvailability);
+        
+        EntityValidator<ConsultantAvailability> validator = new EntityValidator();
+        List<String> errors = validator.validate(newAvailability);
+        
+        if(!errors.isEmpty()) {
+        	request.setAttribute("errors", errors);
+        	List<User> users = userDAO.selectAllConsultant();
+    		request.setAttribute("users", users);
+    	    request.getRequestDispatcher("Admin/ConsultantAvailabilities/add_consultant_availability.jsp").forward(request, response);
+        }
+        else {
+        	
+        	if (!errors1.isEmpty()) {
+        		request.setAttribute("errors", errors1);
+            	List<User> users = userDAO.selectAllConsultant();
+        		request.setAttribute("users", users);
+        	    request.getRequestDispatcher("Admin/ConsultantAvailabilities/add_consultant_availability.jsp").forward(request, response);
+        	} else {
+        		consultantAvailabilityDAO.addConsultantAvailability(newAvailability);
 
-        response.sendRedirect("/ConsultAppoinmentWebApp/ConsultantAvailabilityServlet?parameter=list&user_ID="+user_ID);
+                response.sendRedirect("/ConsultAppoinmentWebApp/ConsultantAvailabilityServlet?parameter=list&user_ID="+user_ID);
+        	}
+
+        }
 	}
 
 	/**

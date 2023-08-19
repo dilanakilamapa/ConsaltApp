@@ -2,14 +2,29 @@ package com.Model;
 
 import java.sql.Date;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 public class User {
 	private int Id;
+	
+	@NotBlank(message = "First name should not be blank")
 	private String F_name;
+	
+	@NotBlank(message = "Last name should not be blank")
 	private String L_name;
+	
+	@NotBlank(message = "Address should not be blank")
 	private String Address;
+	
+	 @NotNull(message = "Contact 01 should not be null")
 	private int Contact_01;
 	private int Contact_02;
+	
+	@NotNull(message = "Date of birth should not be null")
 	private Date DOB;
+	
+	@NotNull(message = "Role ID should not be null")
 	private int role_id;
 	
 	public User(int id, String f_name, String l_name, String address, int contact_01, int contact_02, Date dOB,

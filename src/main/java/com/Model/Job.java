@@ -1,7 +1,11 @@
 package com.Model;
 
+import javax.validation.constraints.NotEmpty;
+
 public class Job {
 	private int id;
+	
+	@NotEmpty(message = "Job Name should not be empty")
 	private String name;
 	public Job(int id, String name) {
 		this.id = id;

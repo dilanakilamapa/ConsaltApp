@@ -107,21 +107,21 @@
                 <div class="row">
                   <div class="col-6">
                     <span class="">First name</span>
-                    <input class="form-control form-control-sm" type="text" name="F_name" id="F_name">
+                    <input class="form-control form-control-sm" type="text" name="F_name" id="F_name" value="${newJobseeker.getFirst_Name()}">
                   </div>
                   <div class="col-6">
                     <span class="">Last name</span>
-                    <input class="form-control form-control-sm" type="text" name="L_name" id="L_name">
+                    <input class="form-control form-control-sm" type="text" name="L_name" id="L_name" value="${newJobseeker.getLast_Name()}">
                   </div>
                 </div>
                 <div class="row mt-3">
                   <div class="col-6">
                     <span class="">Email</span>
-                    <input class="form-control form-control-sm" type="email" name="email" id="email">
+                    <input class="form-control form-control-sm" type="email" name="email" id="email" value="${newJobseeker.getEmail()}">
                   </div>
                   <div class="col-6">
                     <span class="">Phone Number</span>
-                    <input class="form-control form-control-sm" type="number" name="phone_number" id="phone_number">
+                    <input class="form-control form-control-sm" type="number" name="phone_number" id="phone_number" value="${newJobseeker.getPhone_Number()}">
                   </div>
                 </div>
                 <div class="row mt-3">
@@ -175,6 +175,23 @@
                     <input class="btn btn-dark" type="submit" value="Book">
                   </div>
                 </div>
+                <div class="row mt-3 justify-content-center">
+                <div class="col-6">
+	                <ul class="error text text-danger">
+		                <c:forEach var="error" items="${errors}">
+		                	<li>${error}</li>
+		                </c:forEach>
+	                </ul>
+                </div>
+                <div class="col-6">
+	                <ul class="error text text-danger">
+		                <c:forEach var="error" items="${errors1}">
+		                	<li>${error}</li>
+		                </c:forEach>
+	                </ul>
+                </div>
+              </div>
+                
               </div>
             </div>
           </div>

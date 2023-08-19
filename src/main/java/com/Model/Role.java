@@ -1,7 +1,12 @@
 package com.Model;
 
+import javax.validation.constraints.NotBlank;
+
 public class Role {
+	
 	private int id;
+	
+	@NotBlank(message = "Role name should not be blank")
 	private String Role_name;
 	
 	public Role(int id, String role_name) {

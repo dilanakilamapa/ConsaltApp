@@ -186,6 +186,22 @@
                           <input class="btn btn-warning" type="reset" value="Clear">
                         </div>
                       </div>
+                      <div class="row mt-3 justify-content-center">
+                <div class="col-6">
+	                <ul class="error text text-danger">
+		                <c:forEach var="error" items="${errors}">
+		                	<li>${error}</li>
+		                </c:forEach>
+	                </ul>
+                </div>
+                <div class="col-6">
+	                <ul class="error text text-danger">
+		                <c:forEach var="error" items="${errors1}">
+		                	<li>${error}</li>
+		                </c:forEach>
+	                </ul>
+                </div>
+              </div>
                     </div>
                   </div>
                 </div>

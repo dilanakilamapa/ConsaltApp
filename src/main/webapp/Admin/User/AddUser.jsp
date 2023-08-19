@@ -41,7 +41,7 @@
               <div class="row mt-3">
                 <div class="col-6">
                   <span class="">Date of Birth</span>
-                  <input class="form-control form-control-sm" type="date" name="DOB" id="DOB">
+                  <input class="form-control form-control-sm" type="date" name="DOB" id="DOB" value="1900-01-01">
                 </div>
                 <div class="col-6">
                   <span class="">Select Role</span>
@@ -56,6 +56,22 @@
                 <div class="col-3">
                   <input class="btn btn-dark" type="submit" value="Save">
                   <input class="btn btn-warning" type="reset" value="Clear">
+                </div>
+              </div>
+              <div class="row mt-3 justify-content-center">
+                <div class="col-6">
+	                <ul class="error text text-danger">
+		                <c:forEach var="error" items="${errors}">
+		                	<li>${error}</li>
+		                </c:forEach>
+	                </ul>
+                </div>
+                <div class="col-6">
+	                <ul class="error text text-danger">
+		                <c:forEach var="error" items="${errors1}">
+		                	<li>${error}</li>
+		                </c:forEach>
+	                </ul>
                 </div>
               </div>
             </div>
