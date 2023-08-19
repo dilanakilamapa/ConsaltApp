@@ -1,12 +1,26 @@
 package com.Model;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Email;
+
 public class Jobseeker {
 	
 	private int JobSeekers_ID;
+	
+	@NotBlank(message = "First name should not be blank")
 	private String First_Name;
+	
+	 @NotBlank(message = "Last name should not be blank")
 	private String Last_Name;
+	 
+	 @NotBlank(message = "Email should not be blank")
+	 @Email(message = "Invalid email format")
 	private String Email;
+	 
+	 @NotNull(message = "Phone number should not be null")
 	private int Phone_Number;
+	
 	public Jobseeker(int jobSeekers_ID, String first_Name, String last_Name, String email, int phone_Number) {
 		JobSeekers_ID = jobSeekers_ID;
 		First_Name = first_Name;

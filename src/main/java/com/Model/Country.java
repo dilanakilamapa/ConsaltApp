@@ -1,7 +1,11 @@
 package com.Model;
 
+import javax.validation.constraints.NotEmpty;
+
 public class Country {
 	private int id;
+	
+	@NotEmpty(message = "Country Name should not be empty")
 	private String name;
 	public Country(int id, String name) {
 		this.id = id;

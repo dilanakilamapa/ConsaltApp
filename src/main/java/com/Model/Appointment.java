@@ -3,22 +3,40 @@ package com.Model;
 import java.sql.Date;
 import java.sql.Time;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
 public class Appointment {
 	private int Appointment_ID;
+	
+	@NotNull(message = "Select a Consultant")
 	private int Consultant_ID;
+	
 	private String Consultant_first_name;
 	private String Consultant_last_name;
+	
+	 @NotNull(message = "Select a Job seeker")
 	private int JobSeeker_ID;
 	private String JobSeeker_name;
+	
+	 @NotNull(message = "Select an available Time")
 	private int available_id;
 	private Date DATE;
 	private Time Start_Time;
 	private Time End_Time;
+	
+	 @NotNull(message = "Select a Country Time")
 	private int country_id;
 	private String country_name;
+	
+	 @NotNull(message = "Select a Job Time")
 	private int job_id;
 	private String job_name;
 	private String Note;
+	
+	@NotEmpty(message = "Appointment Type should not be empty")
+    @Pattern(regexp = "^(?!select type$).*", message = "Invalid Appointment Type")
 	private String Appointment_Type;
 	
 	

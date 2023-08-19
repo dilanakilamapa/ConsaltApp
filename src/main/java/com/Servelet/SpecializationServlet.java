@@ -2,6 +2,7 @@ package com.Servelet;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,6 +19,7 @@ import com.Model.Job;
 import com.Model.User;
 import com.Model.specialization;
 import com.google.gson.Gson;
+import com.validator.EntityValidator;
 
 /**
  * Servlet implementation class SpecializationServlet
@@ -130,14 +132,62 @@ public class SpecializationServlet extends HttpServlet {
 	    private void addSpecialization(HttpServletRequest request, HttpServletResponse response)
 	            throws ServletException, IOException, SQLException {
 	        
+	    	List<String> errors1 = new ArrayList<>();
+	    	
 	        int user_ID = Integer.parseInt(request.getParameter("user"));
 	        int country_id = Integer.parseInt(request.getParameter("Country"));
 	        int job_Title_id = Integer.parseInt(request.getParameter("Job"));
+	        
+	        if (user_ID == 0) {
+	        	errors1.add("Please select Consultant.");
+	        }
+
+	        if (country_id == 0) {
+	        	errors1.add("Please select Country.");
+	        }
+
+	        if (job_Title_id == 0) {
+	        	errors1.add("Please select Job.");
+	        }
 
 	        specialization spec = new specialization(user_ID, country_id, job_Title_id);
-	        specializationDAO.addSpecialization(spec);
+	        
+	        EntityValidator<specialization> validator = new EntityValidator();
+	        List<String> errors = validator.validate(spec);
+	        
+	        if(!errors.isEmpty()) {
+	        	
+	        	List<User> users = userDAO.selectAllConsultant();
+		    	List<Country> countries =countryDAO.selectAllCountries();
+		    	List<Job> jobs = jobDAO.selectAllJobs();
+		    	request.setAttribute("users", users);
+		    	request.setAttribute("countries", countries);
+		    	request.setAttribute("jobs", jobs);
+		    	request.setAttribute("errors", errors);
+		    	request.setAttribute("errors1", errors1);
+		    	request.setAttribute("spec", spec);
+		        request.getRequestDispatcher("Admin/Specialization/add-specialization-form.jsp").forward(request, response);
+	        }
+	        else {
+	        	
+	        	if(!errors1.isEmpty()) {
+	        		specializationDAO.addSpecialization(spec);
 
-	        response.sendRedirect("SpecializationServlet");
+			        response.sendRedirect("SpecializationServlet");
+	        	}
+	        	else {
+	        		List<User> users = userDAO.selectAllConsultant();
+			    	List<Country> countries =countryDAO.selectAllCountries();
+			    	List<Job> jobs = jobDAO.selectAllJobs();
+			    	request.setAttribute("users", users);
+			    	request.setAttribute("countries", countries);
+			    	request.setAttribute("jobs", jobs);
+			    	request.setAttribute("errors1", errors1);
+			    	request.setAttribute("spec", spec);
+			        request.getRequestDispatcher("Admin/Specialization/add-specialization-form.jsp").forward(request, response);
+	        	}
+	        	
+	        }
 	    }
 
 	    private void showUpdateForm(HttpServletRequest request, HttpServletResponse response)
@@ -156,19 +206,66 @@ public class SpecializationServlet extends HttpServlet {
 
 	    private void updateSpecialization(HttpServletRequest request, HttpServletResponse response)
 	            throws ServletException, IOException {
+	    	
+	    	List<String> errors1 = new ArrayList<>();
 	        int specId = Integer.parseInt(request.getParameter("ID"));
 	        int user_ID = Integer.parseInt(request.getParameter("user"));
 	        int country_id = Integer.parseInt(request.getParameter("Country"));
 	        int job_Title_id = Integer.parseInt(request.getParameter("Job"));
-
-	        specialization spec = new specialization(specId, user_ID, country_id, job_Title_id);
-	        try {
-	            specializationDAO.updateSpecialization(spec);
-	        } catch (SQLException e) {
-	            e.printStackTrace();
+	        
+	        if (user_ID == 0) {
+	        	errors1.add("Please select Consultant.");
 	        }
 
-	        response.sendRedirect("SpecializationServlet");
+	        if (country_id == 0) {
+	        	errors1.add("Please select Country.");
+	        }
+
+	        if (job_Title_id == 0) {
+	        	errors1.add("Please select Job.");
+	        }
+
+	        specialization spec = new specialization(specId, user_ID, country_id, job_Title_id);
+	        
+	        EntityValidator<specialization> validator = new EntityValidator();
+	        List<String> errors = validator.validate(spec);
+	        
+	        if(!errors.isEmpty()) {
+	        	
+		        List<User> users = userDAO.selectAllConsultant();
+		    	List<Country> countries =countryDAO.selectAllCountries();
+		    	List<Job> jobs = jobDAO.selectAllJobs();
+		    	request.setAttribute("users", users);
+		    	request.setAttribute("countries", countries);
+		    	request.setAttribute("jobs", jobs);
+		        request.setAttribute("spec", spec);
+		        request.setAttribute("errors", errors);
+		        request.setAttribute("errors1", errors1);
+		        request.getRequestDispatcher("Admin/Specialization/update-specialization-form.jsp").forward(request, response);
+	        }
+	        else {
+	        	
+	        	if(!errors1.isEmpty()) {
+	        		try {
+			            specializationDAO.updateSpecialization(spec);
+			        } catch (SQLException e) {
+			            e.printStackTrace();
+			        }
+	        		response.sendRedirect("SpecializationServlet");
+	        	}
+	        	else {
+	        		List<User> users = userDAO.selectAllConsultant();
+			    	List<Country> countries =countryDAO.selectAllCountries();
+			    	List<Job> jobs = jobDAO.selectAllJobs();
+			    	request.setAttribute("users", users);
+			    	request.setAttribute("countries", countries);
+			    	request.setAttribute("jobs", jobs);
+			        request.setAttribute("spec", spec);
+			        request.setAttribute("errors1", errors1);
+			        request.getRequestDispatcher("Admin/Specialization/update-specialization-form.jsp").forward(request, response);
+	        	}
+	        	
+	        }
 	    }
 
 	    private void deleteSpecialization(HttpServletRequest request, HttpServletResponse response)

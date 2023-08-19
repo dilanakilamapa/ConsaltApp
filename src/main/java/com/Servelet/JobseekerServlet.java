@@ -2,6 +2,7 @@ package com.Servelet;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -11,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.DAO.JobseekerDAO;
 import com.Model.Jobseeker;
+import com.Model.User;
+import com.validator.EntityValidator;
 
 /**
  * Servlet implementation class JobseekerServlet
@@ -85,19 +88,50 @@ public class JobseekerServlet extends HttpServlet {
 
     private void addJobseeker(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+    	List<String> errors1 = new ArrayList<>();
         String firstName = request.getParameter("firstName");
         String lastName = request.getParameter("lastName");
         String email = request.getParameter("email");
-        int phoneNumber = Integer.parseInt(request.getParameter("phoneNumber"));
-
+        int phoneNumber = 0700000000;
+        
+        if(!request.getParameter("phoneNumber").isEmpty()) {
+        	if(request.getParameter("phoneNumber").length() < 10) {
+        		errors1.add("Please Enter your corect Contact Number.");
+        	}
+        	phoneNumber = Integer.parseInt(request.getParameter("phoneNumber"));
+           }else {
+           	if(phoneNumber == 0700000000) {
+           		errors1.add("Please Enter your Contact Number.");
+           	}
+           }
         Jobseeker newJobseeker = new Jobseeker(firstName, lastName, email, phoneNumber);
-        try {
-            jobseekerDAO.addJobseeker(newJobseeker);
-        } catch (SQLException e) {
-            e.printStackTrace();
+        
+        EntityValidator<Jobseeker> validator = new EntityValidator();
+        List<String> errors = validator.validate(newJobseeker);
+        
+        if(!errors.isEmpty()) {
+        	request.setAttribute("errors1", errors1);
+        	request.setAttribute("errors", errors);
+        	 request.getRequestDispatcher("Admin/JobSeeker/add_jobseeker.jsp").forward(request, response);
         }
+        else {
+        	
+        	if(!errors1.isEmpty()) {
+        		try {
+                    jobseekerDAO.addJobseeker(newJobseeker);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
 
-        response.sendRedirect("JobseekerServlet");
+                response.sendRedirect("JobseekerServlet");
+        	}
+        	else {
+        	 request.setAttribute("errors", errors1);
+        	 request.setAttribute("errors", errors);
+           	 request.getRequestDispatcher("Admin/JobSeeker/add_jobseeker.jsp").forward(request, response);
+        	}
+        	
+        }
     }
 
     private void showUpdateForm(HttpServletRequest request, HttpServletResponse response)
@@ -110,20 +144,50 @@ public class JobseekerServlet extends HttpServlet {
 
     private void updateJobseeker(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+    	List<String> errors1 = new ArrayList<>();
+    	
         int jobseekerId = Integer.parseInt(request.getParameter("id"));
         String firstName = request.getParameter("firstName");
         String lastName = request.getParameter("lastName");
         String email = request.getParameter("email");
-        int phoneNumber = Integer.parseInt(request.getParameter("phoneNumber"));
+        int phoneNumber = 0700000000;
+        
+        if(!request.getParameter("phoneNumber").isEmpty()) {
+        	phoneNumber = Integer.parseInt(request.getParameter("phoneNumber"));
+           }else {
+           	if(phoneNumber == 0700000000) {
+           		errors1.add("Please Enter your Contact Number.");
+           	}
+           }
 
         Jobseeker updatedJobseeker = new Jobseeker(jobseekerId, firstName, lastName, email, phoneNumber);
-        try {
-            jobseekerDAO.updateJobseeker(updatedJobseeker);
-        } catch (SQLException e) {
-            e.printStackTrace();
+        
+        EntityValidator<Jobseeker> validator = new EntityValidator();
+        List<String> errors = validator.validate(updatedJobseeker);
+        
+        if(!errors.isEmpty()) {
+        	request.setAttribute("errors", errors);
+        	request.setAttribute("jobseeker", updatedJobseeker);
+            request.getRequestDispatcher("Admin/JobSeeker/update_jobseeker.jsp").forward(request, response);
         }
+        else {
+        	
+        	if(!errors1.isEmpty()) {
+        		try {
+                    jobseekerDAO.updateJobseeker(updatedJobseeker);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
 
-        response.sendRedirect("JobseekerServlet");
+                response.sendRedirect("JobseekerServlet");
+        	}
+        	else {
+        	 request.setAttribute("errors", errors1);
+        	 request.setAttribute("errors", errors);
+        	 request.setAttribute("jobseeker", updatedJobseeker);
+        	 request.getRequestDispatcher("Admin/JobSeeker/update_jobseeker.jsp").forward(request, response);
+        	}
+        }
     }
 
     private void deleteJobseeker(HttpServletRequest request, HttpServletResponse response)

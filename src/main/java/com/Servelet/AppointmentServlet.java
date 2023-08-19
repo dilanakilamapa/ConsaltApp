@@ -8,9 +8,11 @@ import com.Model.Appointment;
 import com.Model.ConsultantAvailability;
 import com.Model.Jobseeker;
 import com.Model.User;
+import com.validator.EntityValidator;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -59,7 +61,7 @@ public class AppointmentServlet extends HttpServlet {
             case "showAddForm":
                 showAddForm(request, response);
                 break;
-            case "Add":
+            case "add":
 			try {
 				addAppointments(request, response);
 			} catch (SQLException | IOException | ServletException e) {
@@ -82,11 +84,14 @@ public class AppointmentServlet extends HttpServlet {
                 deleteAppointment(request, response);
                 break;
             default:
-                listAppointments(request, response);
+                //listAppointments(request, response);
         }
 	}
 
 	private void addAppointments(HttpServletRequest request, HttpServletResponse response) throws SQLException, IOException, ServletException {
+		
+		List<String> errors1 = new ArrayList<>();
+
 		int consultantId = Integer.parseInt(request.getParameter("Consultant"));
         int jobSeekerId = Integer.parseInt(request.getParameter("Seeker"));
         int availableId = Integer.parseInt(request.getParameter("start_time"));
@@ -95,9 +100,60 @@ public class AppointmentServlet extends HttpServlet {
         String note = request.getParameter("Note");
         String type = request.getParameter("Type");
         
+        if (consultantId == 0) {
+            errors1.add("Place Select Consultant !");
+        }
+
+        if (jobSeekerId == 0) {
+            errors1.add("Place Select Job Seeker !");
+        }
+
+        if (availableId == 0) {
+            errors1.add("Place Select Available !");
+        }
+
+        if (countryId == 0) {
+            errors1.add("Place Select Country !");
+        }
+
+        if (jobId == 0) {
+            errors1.add("Place Select Job !");
+        }
+        
+        if (type == null || type.isEmpty()) {
+            errors1.add("Place Select Type !");
+        }
+        
         Appointment appointment = new Appointment( consultantId, jobSeekerId, availableId, countryId, jobId, note,type);
-        appointmentDAO.addAppointment(appointment);
-        response.sendRedirect("/ConsultAppoinmentWebApp/AppointmentServlet?parameter=list&user_ID="+0);
+        
+        EntityValidator<Appointment> validator = new EntityValidator();
+        List<String> errors = validator.validate(appointment);
+        
+        if(!errors.isEmpty()) {
+        	request.setAttribute("errors", errors);
+        	List<User> users = userDAO.selectAllConsultant();
+    		List<Jobseeker> Jobseekers = jobseekerDAO.selectAllJobseekers();
+    		//List<ConsultantAvailability> ConsultantAvailabilityDates = consultantAvailabilityDAO .selectAllConsultantAvailabilitiesWithName(id);
+    		request.setAttribute("users", users);
+    		request.setAttribute("Jobseekers", Jobseekers);
+            request.getRequestDispatcher("Admin/Appointment/add-appointment.jsp").forward(request, response);
+        }
+        else {
+        	
+        	if (!errors1.isEmpty()) {
+                request.setAttribute("errors1", errors1);
+            	List<User> users = userDAO.selectAllConsultant();
+        		List<Jobseeker> Jobseekers = jobseekerDAO.selectAllJobseekers();
+        		//List<ConsultantAvailability> ConsultantAvailabilityDates = consultantAvailabilityDAO .selectAllConsultantAvailabilitiesWithName(id);
+        		request.setAttribute("users", users);
+        		request.setAttribute("Jobseekers", Jobseekers);
+                request.getRequestDispatcher("Admin/Appointment/add-appointment.jsp").forward(request, response);
+        	} else {
+        		appointmentDAO.addAppointment(appointment);
+                response.sendRedirect("/ConsultAppoinmentWebApp/AppointmentServlet?parameter=list&user_ID="+ 0);
+        	}
+        	
+        }
 	}
 
 	private void showAddForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -119,7 +175,9 @@ public class AppointmentServlet extends HttpServlet {
 	
 	private void listAppointments(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+		System.out.println(request.getParameter("user_ID"));
 		int user_ID = Integer.parseInt(request.getParameter("user_ID"));
+		
 		List<User> users = userDAO.selectAllConsultant();
         List<Appointment> appointmentList = appointmentDAO.SELECT_APPOINTMENT_JOIN_DATA_BY_CONSULT(user_ID);
         request.setAttribute("appointmentList", appointmentList);
@@ -147,9 +205,19 @@ public class AppointmentServlet extends HttpServlet {
         String Appointment_Type = request.getParameter("Appointment_Type");
 
         Appointment appointment = new Appointment(id, consultantId, jobSeekerId, availableId, countryId, jobId, note,Appointment_Type);
-        boolean rowUpdated = appointmentDAO.updateAppointment(appointment);
-        response.sendRedirect("/ConsultAppoinmentWebApp/AppointmentServlet?parameter=list&user_ID="+0);
         
+        EntityValidator<Appointment> validator = new EntityValidator();
+        List<String> errors = validator.validate(appointment);
+        
+        if(!errors.isEmpty()) {
+        	request.setAttribute("errors", errors);
+        	request.setAttribute("appointment", appointment);
+            request.getRequestDispatcher("Admin/Appointment/edit-appointment.jsp").forward(request, response);
+        }
+        else {
+        	boolean rowUpdated = appointmentDAO.updateAppointment(appointment);
+            response.sendRedirect("/ConsultAppoinmentWebApp/AppointmentServlet?parameter=list&user_ID="+0);
+        }  
     }
 
     private void deleteAppointment(HttpServletRequest request, HttpServletResponse response)

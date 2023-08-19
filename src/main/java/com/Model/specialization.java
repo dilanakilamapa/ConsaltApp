@@ -1,12 +1,20 @@
 package com.Model;
 
+import javax.validation.constraints.NotNull;
+
 public class specialization {
 	private int id;
+	
+	@NotNull(message = "User ID should not be null")
 	private int User_ID;
 	private String User_F_Name;
 	private String User_L_Name;
+	
+	@NotNull(message = "Country ID should not be null")
 	private int Country_id;
 	private String Country_Name;
+	
+	@NotNull(message = "Job title ID should not be null")
 	private int Job_Title_id;
 	private String Job_Name;
 	
