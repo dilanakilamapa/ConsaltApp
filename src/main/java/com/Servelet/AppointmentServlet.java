@@ -1,13 +1,10 @@
 package com.Servelet;
 
-import com.DAO.AppointmentDAO;
-import com.DAO.ConsultantAvailabilityDAO;
-import com.DAO.JobseekerDAO;
-import com.DAO.UserDAO;
+
 import com.Model.Appointment;
-import com.Model.ConsultantAvailability;
 import com.Model.Jobseeker;
 import com.Model.User;
+import com.service.AppointmentService;
 import com.validator.EntityValidator;
 
 import java.io.IOException;
@@ -27,19 +24,15 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/AppointmentServlet")
 public class AppointmentServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private AppointmentDAO appointmentDAO;
-	private UserDAO userDAO;
-	private JobseekerDAO jobseekerDAO;
-	private ConsultantAvailabilityDAO consultantAvailabilityDAO;
+	private AppointmentService appointmentService;
+	
     /**
      * @see HttpServlet#HttpServlet()
      */
     public AppointmentServlet() {
         super();
-        appointmentDAO = new AppointmentDAO();
-        userDAO = new UserDAO();
-        jobseekerDAO = new JobseekerDAO();
-        consultantAvailabilityDAO =new ConsultantAvailabilityDAO();
+        appointmentService = new AppointmentService();
+        
         // TODO Auto-generated constructor stub
     }
 
@@ -131,8 +124,8 @@ public class AppointmentServlet extends HttpServlet {
         
         if(!errors.isEmpty()) {
         	request.setAttribute("errors", errors);
-        	List<User> users = userDAO.selectAllConsultant();
-    		List<Jobseeker> Jobseekers = jobseekerDAO.selectAllJobseekers();
+        	List<User> users = appointmentService.getAllConsultants();
+    		List<Jobseeker> Jobseekers = appointmentService.getAllJobseekers();
     		//List<ConsultantAvailability> ConsultantAvailabilityDates = consultantAvailabilityDAO .selectAllConsultantAvailabilitiesWithName(id);
     		request.setAttribute("users", users);
     		request.setAttribute("Jobseekers", Jobseekers);
@@ -142,14 +135,14 @@ public class AppointmentServlet extends HttpServlet {
         	
         	if (!errors1.isEmpty()) {
                 request.setAttribute("errors1", errors1);
-            	List<User> users = userDAO.selectAllConsultant();
-        		List<Jobseeker> Jobseekers = jobseekerDAO.selectAllJobseekers();
+            	List<User> users = appointmentService.getAllConsultants();
+        		List<Jobseeker> Jobseekers = appointmentService.getAllJobseekers();
         		//List<ConsultantAvailability> ConsultantAvailabilityDates = consultantAvailabilityDAO .selectAllConsultantAvailabilitiesWithName(id);
         		request.setAttribute("users", users);
         		request.setAttribute("Jobseekers", Jobseekers);
                 request.getRequestDispatcher("Admin/Appointment/add-appointment.jsp").forward(request, response);
         	} else {
-        		appointmentDAO.addAppointment(appointment);
+        		appointmentService.addAppointment(appointment);
                 response.sendRedirect("/ConsultAppoinmentWebApp/AppointmentServlet?parameter=list&user_ID="+ 0);
         	}
         	
@@ -157,8 +150,8 @@ public class AppointmentServlet extends HttpServlet {
 	}
 
 	private void showAddForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		List<User> users = userDAO.selectAllConsultant();
-		List<Jobseeker> Jobseekers = jobseekerDAO.selectAllJobseekers();
+		List<User> users = appointmentService.getAllConsultants();
+		List<Jobseeker> Jobseekers = appointmentService.getAllJobseekers();
 		//List<ConsultantAvailability> ConsultantAvailabilityDates = consultantAvailabilityDAO .selectAllConsultantAvailabilitiesWithName(id);
 		request.setAttribute("users", users);
 		request.setAttribute("Jobseekers", Jobseekers);
@@ -178,8 +171,8 @@ public class AppointmentServlet extends HttpServlet {
 		System.out.println(request.getParameter("user_ID"));
 		int user_ID = Integer.parseInt(request.getParameter("user_ID"));
 		
-		List<User> users = userDAO.selectAllConsultant();
-        List<Appointment> appointmentList = appointmentDAO.SELECT_APPOINTMENT_JOIN_DATA_BY_CONSULT(user_ID);
+		List<User> users = appointmentService.getAllConsultants();
+        List<Appointment> appointmentList = appointmentService.getAppointmentsByConsultant(user_ID);
         request.setAttribute("appointmentList", appointmentList);
         request.setAttribute("users", users);
         request.getRequestDispatcher("Admin/Appointment/list-appointments.jsp").forward(request, response);
@@ -188,7 +181,7 @@ public class AppointmentServlet extends HttpServlet {
     private void getAppointment(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int appointmentId = Integer.parseInt(request.getParameter("id"));
-        Appointment appointment = appointmentDAO.getAppointmentById(appointmentId);
+        Appointment appointment = appointmentService.getAppointmentById(appointmentId);
         request.setAttribute("appointment", appointment);
         request.getRequestDispatcher("Admin/Appointment/edit-appointment.jsp").forward(request, response);
     }
@@ -215,7 +208,7 @@ public class AppointmentServlet extends HttpServlet {
             request.getRequestDispatcher("Admin/Appointment/edit-appointment.jsp").forward(request, response);
         }
         else {
-        	boolean rowUpdated = appointmentDAO.updateAppointment(appointment);
+        	boolean rowUpdated = appointmentService.updateAppointment(appointment);
             response.sendRedirect("/ConsultAppoinmentWebApp/AppointmentServlet?parameter=list&user_ID="+0);
         }  
     }
@@ -224,7 +217,7 @@ public class AppointmentServlet extends HttpServlet {
             throws ServletException, IOException {
         int appointmentId = Integer.parseInt(request.getParameter("id"));
         try {
-            appointmentDAO.deleteAppointment(appointmentId);
+        	appointmentService.deleteAppointment(appointmentId);
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -11,10 +11,14 @@ import com.Model.Role;
 import com.dbConnection.*;
 
 public class RoleDAO {
-    private dbConnection dbConnection;
+	private DBSingletonConnection dbConnection;
+	
+	private Connection getConnection() {
+        return dbConnection.getConnection();
+    }
 
     public RoleDAO() {
-        dbConnection = new dbConnection();
+    	dbConnection = DBSingletonConnection.getInstance();
     }
 
     private static final String INSERT_ROLE_SQL = "INSERT INTO rols (Role_name) VALUES (?)";
@@ -22,7 +26,7 @@ public class RoleDAO {
     private static final String SELECT_ALL_ROLE = "SELECT * FROM rols";
 
     public void addRole(Role role) throws SQLException {
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(INSERT_ROLE_SQL)) {
             preparedStatement.setString(1, role.getRole_name());
             preparedStatement.executeUpdate();
@@ -34,7 +38,7 @@ public class RoleDAO {
     public Role getRoleById(int roleId) {
         Role role = null;
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ROLE_BY_ID);
             preparedStatement.setInt(1, roleId);
             ResultSet rs = preparedStatement.executeQuery();
@@ -52,7 +56,7 @@ public class RoleDAO {
     public List<Role> selectAllRoles() {
         List<Role> rolesList = new ArrayList<>();
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_ROLE);
             ResultSet rs = preparedStatement.executeQuery();
 

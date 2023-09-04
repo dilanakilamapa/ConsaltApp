@@ -7,15 +7,18 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.Model.Jobseeker;
-import com.dbConnection.dbConnection;
+import com.dbConnection.DBSingletonConnection;
+
 
 public class JobseekerDAO {
-    private dbConnection dbConnection;
-
+private DBSingletonConnection dbConnection;
+	
+	private Connection getConnection() {
+        return dbConnection.getConnection();
+    }
     public JobseekerDAO() {
-        dbConnection = new dbConnection();
+    	dbConnection = DBSingletonConnection.getInstance();
     }
 
     private static final String INSERT_JOBSEEKER_SQL = "INSERT INTO jobseekers (First_Name, Last_Name, Email, Phone_Number) VALUES (?, ?, ?, ?)";
@@ -25,7 +28,7 @@ public class JobseekerDAO {
     private static final String UPDATE_JOBSEEKER_SQL = "UPDATE jobseekers SET First_Name = ?, Last_Name = ?, Email = ?, Phone_Number = ? WHERE JobSeekers_ID = ?";
 
     public void addJobseeker(Jobseeker jobseeker) throws SQLException {
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(INSERT_JOBSEEKER_SQL)) {
             preparedStatement.setString(1, jobseeker.getFirst_Name());
             preparedStatement.setString(2, jobseeker.getLast_Name());
@@ -41,7 +44,7 @@ public class JobseekerDAO {
     public int addJobseekerReurnID(Jobseeker jobseeker) throws SQLException {
         int generatedId = -1; 
 
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(INSERT_JOBSEEKER_SQL, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, jobseeker.getFirst_Name());
             preparedStatement.setString(2, jobseeker.getLast_Name());
@@ -68,7 +71,7 @@ public class JobseekerDAO {
     public Jobseeker getJobseekerById(int jobSeekersId) {
         Jobseeker jobseeker = null;
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_JOBSEEKER_BY_ID);
             preparedStatement.setInt(1, jobSeekersId);
             ResultSet rs = preparedStatement.executeQuery();
@@ -90,7 +93,7 @@ public class JobseekerDAO {
     public List<Jobseeker> selectAllJobseekers() {
         List<Jobseeker> jobseekerList = new ArrayList<>();
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_JOBSEEKERS);
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -110,7 +113,7 @@ public class JobseekerDAO {
 
     public boolean deleteJobseeker(int jobSeekersId) throws SQLException {
         boolean rowDeleted = false;
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(DELETE_JOBSEEKER_SQL)) {
             statement.setInt(1, jobSeekersId);
             rowDeleted = statement.executeUpdate() > 0;
@@ -122,7 +125,7 @@ public class JobseekerDAO {
 
     public boolean updateJobseeker(Jobseeker jobseeker) throws SQLException {
         boolean rowUpdated = false;
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(UPDATE_JOBSEEKER_SQL)) {
             statement.setString(1, jobseeker.getFirst_Name());
             statement.setString(2, jobseeker.getLast_Name());

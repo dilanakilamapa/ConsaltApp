@@ -6,15 +6,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.Model.Job;
-import com.dbConnection.dbConnection;
+import com.dbConnection.DBSingletonConnection;
 
 public class JobDAO {
-    private dbConnection dbConnection;
-
+private DBSingletonConnection dbConnection;
+	
+	private Connection getConnection() {
+        return dbConnection.getConnection();
+    }
     public JobDAO() {
-        dbConnection = new dbConnection();
+    	dbConnection = DBSingletonConnection.getInstance();
     }
 
     private static final String INSERT_JOB_SQL = "INSERT INTO job (Job_name) VALUES (?)";
@@ -24,7 +26,7 @@ public class JobDAO {
     private static final String UPDATE_JOB_SQL = "UPDATE job SET Job_name = ? WHERE job_id = ?";
 
     public void addJob(Job job) throws SQLException {
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(INSERT_JOB_SQL)) {
             preparedStatement.setString(1, job.getName());
             preparedStatement.executeUpdate();
@@ -36,7 +38,7 @@ public class JobDAO {
     public Job getJobById(int jobId) {
         Job job = null;
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_JOB_BY_ID);
             preparedStatement.setInt(1, jobId);
             ResultSet rs = preparedStatement.executeQuery();
@@ -55,7 +57,7 @@ public class JobDAO {
     public List<Job> selectAllJobs() {
         List<Job> jobList = new ArrayList<>();
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_JOBS);
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -72,7 +74,7 @@ public class JobDAO {
 
     public boolean deleteJob(int jobId) throws SQLException {
         boolean rowDeleted = false;
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(DELETE_JOB_SQL)) {
             statement.setInt(1, jobId);
             rowDeleted = statement.executeUpdate() > 0;
@@ -84,7 +86,7 @@ public class JobDAO {
 
     public boolean updateJob(Job job) throws SQLException {
         boolean rowUpdated = false;
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(UPDATE_JOB_SQL)) {
             statement.setString(1, job.getName());
             statement.setInt(2, job.getId());

@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.DAO.JobseekerDAO;
 import com.Model.Jobseeker;
 import com.Model.User;
+import com.service.JobseekerService;
 import com.validator.EntityValidator;
 
 /**
@@ -21,13 +22,13 @@ import com.validator.EntityValidator;
 @WebServlet("/JobseekerServlet")
 public class JobseekerServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private JobseekerDAO jobseekerDAO;
+	private JobseekerService jobseekerService;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
     public JobseekerServlet() {
-    	 jobseekerDAO = new JobseekerDAO();
+    	jobseekerService = new JobseekerService();
         // TODO Auto-generated constructor stub
     }
 
@@ -75,7 +76,7 @@ public class JobseekerServlet extends HttpServlet {
 	
 	private void listJobseekers(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Jobseeker> jobseekers = jobseekerDAO.selectAllJobseekers();
+        List<Jobseeker> jobseekers = jobseekerService.getAllJobseekers();
         request.setAttribute("jobseekers", jobseekers);
         request.getRequestDispatcher("Admin/JobSeeker/jobseekers.jsp").forward(request, response);
     }
@@ -118,7 +119,7 @@ public class JobseekerServlet extends HttpServlet {
         	
         	if(!errors1.isEmpty()) {
         		try {
-                    jobseekerDAO.addJobseeker(newJobseeker);
+        			jobseekerService.addJobseeker(newJobseeker);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -137,7 +138,7 @@ public class JobseekerServlet extends HttpServlet {
     private void showUpdateForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         int jobseekerId = Integer.parseInt(request.getParameter("id"));
-        Jobseeker jobseeker = jobseekerDAO.getJobseekerById(jobseekerId);
+        Jobseeker jobseeker = jobseekerService.getJobseekerById(jobseekerId);
         request.setAttribute("jobseeker", jobseeker);
         request.getRequestDispatcher("Admin/JobSeeker/update_jobseeker.jsp").forward(request, response);
     }
@@ -174,7 +175,7 @@ public class JobseekerServlet extends HttpServlet {
         	
         	if(!errors1.isEmpty()) {
         		try {
-                    jobseekerDAO.updateJobseeker(updatedJobseeker);
+        			jobseekerService.updateJobseeker(updatedJobseeker);
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -194,7 +195,7 @@ public class JobseekerServlet extends HttpServlet {
             throws ServletException, IOException {
         int jobseekerId = Integer.parseInt(request.getParameter("id"));
         try {
-            jobseekerDAO.deleteJobseeker(jobseekerId);
+        	jobseekerService.deleteJobseeker(jobseekerId);
         } catch (SQLException e) {
             e.printStackTrace();
         }

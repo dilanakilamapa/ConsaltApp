@@ -8,13 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.Model.Country;
-import com.dbConnection.dbConnection;
+import com.dbConnection.DBSingletonConnection;
 
 public class CountryDAO {
-    private dbConnection dbConnection;
+private DBSingletonConnection dbConnection;
+	
+	private Connection getConnection() {
+        return dbConnection.getConnection();
+    }
 
     public CountryDAO() {
-        dbConnection = new dbConnection();
+    	dbConnection = DBSingletonConnection.getInstance();
     }
 
     private static final String INSERT_COUNTRY_SQL = "INSERT INTO country (country_name) VALUES (?)";
@@ -24,7 +28,7 @@ public class CountryDAO {
     private static final String UPDATE_COUNTRY_SQL = "UPDATE country SET country_name = ? WHERE id = ?";
 
     public void addCountry(Country country) throws SQLException {
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(INSERT_COUNTRY_SQL)) {
             preparedStatement.setString(1, country.getName());
             preparedStatement.executeUpdate();
@@ -36,7 +40,7 @@ public class CountryDAO {
     public Country getCountryById(int countryId) {
         Country country = null;
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_COUNTRY_BY_ID);
             preparedStatement.setInt(1, countryId);
             ResultSet rs = preparedStatement.executeQuery();
@@ -55,7 +59,7 @@ public class CountryDAO {
     public List<Country> selectAllCountries() {
         List<Country> countryList = new ArrayList<>();
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_COUNTRIES);
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -72,7 +76,7 @@ public class CountryDAO {
 
     public boolean deleteCountry(int countryId) throws SQLException {
         boolean rowDeleted = false;
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(DELETE_COUNTRY_SQL)) {
             statement.setInt(1, countryId);
             rowDeleted = statement.executeUpdate() > 0;
@@ -84,7 +88,7 @@ public class CountryDAO {
 
     public boolean updateCountry(Country country) throws SQLException {
         boolean rowUpdated = false;
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(UPDATE_COUNTRY_SQL)) {
             statement.setString(1, country.getName());
             statement.setInt(2, country.getId());

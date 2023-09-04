@@ -18,6 +18,7 @@ import com.DAO.UserDAO;
 import com.Model.ConsultantAvailability;
 import com.Model.User;
 import com.google.gson.Gson;
+import com.service.ConsultantAvailabilityService;
 import com.validator.EntityValidator;
 
 
@@ -29,15 +30,13 @@ import com.validator.EntityValidator;
 @WebServlet("/ConsultantAvailabilityServlet")
 public class ConsultantAvailabilityServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private ConsultantAvailabilityDAO consultantAvailabilityDAO;
-	private UserDAO userDAO;
+	private ConsultantAvailabilityService consultantAvailabilityService;
     /**
      * @see HttpServlet#HttpServlet()
      */
     public ConsultantAvailabilityServlet() {
         super();
-        consultantAvailabilityDAO = new ConsultantAvailabilityDAO();
-        userDAO = new UserDAO();
+        consultantAvailabilityService = new ConsultantAvailabilityService();
         // TODO Auto-generated constructor stub
     }
 
@@ -99,7 +98,7 @@ public class ConsultantAvailabilityServlet extends HttpServlet {
 	private void getDates(HttpServletRequest request, HttpServletResponse response)
 	        throws ServletException, IOException {
 		int user_ID = Integer.parseInt(request.getParameter("id"));
-	    List<ConsultantAvailability> consultantAvailabilityList = consultantAvailabilityDAO.selectAllConsultantAvailabilitiesWithName(user_ID);
+	    List<ConsultantAvailability> consultantAvailabilityList = consultantAvailabilityService.getAllConsultantAvailabilities(user_ID);
 	    
 	    String json = new Gson().toJson(consultantAvailabilityList);
 	    response.setContentType("application/json");
@@ -113,7 +112,7 @@ public class ConsultantAvailabilityServlet extends HttpServlet {
 	        throws ServletException, IOException {
 		Date user_ID = java.sql.Date.valueOf(request.getParameter("date"));
 		System.out.println(user_ID);
-	    List<ConsultantAvailability> consultantAvailabilityList = consultantAvailabilityDAO.SELECT_START_AND_END_TIME_BY_DATE(user_ID);
+	    List<ConsultantAvailability> consultantAvailabilityList = consultantAvailabilityService.getAvailabilityByDate(user_ID);
 	    System.out.println(consultantAvailabilityList);
 	    String json = new Gson().toJson(consultantAvailabilityList);
 	    response.setContentType("application/json");
@@ -125,7 +124,7 @@ public class ConsultantAvailabilityServlet extends HttpServlet {
 
 	private void deleteConsultantAvailability(HttpServletRequest request, HttpServletResponse response) throws IOException, SQLException {
 		int availabilityId = Integer.parseInt(request.getParameter("id"));
-        consultantAvailabilityDAO.deleteConsultantAvailability(availabilityId);
+		consultantAvailabilityService.deleteConsultantAvailability(availabilityId);
         response.sendRedirect("/ConsultAppoinmentWebApp/ConsultantAvailabilityServlet?parameter=list&user_ID="+0);
 	}
 
@@ -170,7 +169,7 @@ public class ConsultantAvailabilityServlet extends HttpServlet {
         		request.setAttribute("availability", updatedAvailability);
         	    request.getRequestDispatcher("Admin/ConsultantAvailabilities/update_consultant_availability.jsp").forward(request, response);
         	} else {
-        		Boolean abc = consultantAvailabilityDAO.updateConsultantAvailability(updatedAvailability);
+        		Boolean abc = consultantAvailabilityService.updateConsultantAvailability(updatedAvailability);
                 System.out.println("Update "+availabilityId + " " + DATE + " " + start_Time + " " + end_Time + " " +abc);
                 response.sendRedirect("/ConsultAppoinmentWebApp/ConsultantAvailabilityServlet?parameter=list&user_ID="+0);
         	}
@@ -214,7 +213,7 @@ public class ConsultantAvailabilityServlet extends HttpServlet {
         
         if(!errors.isEmpty()) {
         	request.setAttribute("errors", errors);
-        	List<User> users = userDAO.selectAllConsultant();
+        	List<User> users = consultantAvailabilityService.getAllConsultants();
     		request.setAttribute("users", users);
     	    request.getRequestDispatcher("Admin/ConsultantAvailabilities/add_consultant_availability.jsp").forward(request, response);
         }
@@ -222,11 +221,11 @@ public class ConsultantAvailabilityServlet extends HttpServlet {
         	
         	if (!errors1.isEmpty()) {
         		request.setAttribute("errors", errors1);
-            	List<User> users = userDAO.selectAllConsultant();
+            	List<User> users = consultantAvailabilityService.getAllConsultants();
         		request.setAttribute("users", users);
         	    request.getRequestDispatcher("Admin/ConsultantAvailabilities/add_consultant_availability.jsp").forward(request, response);
         	} else {
-        		consultantAvailabilityDAO.addConsultantAvailability(newAvailability);
+        		consultantAvailabilityService.addConsultantAvailability(newAvailability);
 
                 response.sendRedirect("/ConsultAppoinmentWebApp/ConsultantAvailabilityServlet?parameter=list&user_ID="+user_ID);
         	}
@@ -245,8 +244,8 @@ public class ConsultantAvailabilityServlet extends HttpServlet {
 	private void listConsultantAvailabilities(HttpServletRequest request, HttpServletResponse response)
 	        throws ServletException, IOException {
 		int user_ID = Integer.parseInt(request.getParameter("user_ID"));
-	    List<ConsultantAvailability> availabilities = consultantAvailabilityDAO.selectAllConsultantAvailabilitiesWithName(user_ID);
-	    List<User> users = userDAO.selectAllConsultant();
+	    List<ConsultantAvailability> availabilities = consultantAvailabilityService.getAllConsultantAvailabilities(user_ID);
+	    List<User> users = consultantAvailabilityService.getAllConsultants();
 	    request.setAttribute("availabilities", availabilities);
 	    request.setAttribute("users", users);
 	    request.getRequestDispatcher("Admin/ConsultantAvailabilities/consultant_availabilities.jsp").forward(request, response);
@@ -254,7 +253,7 @@ public class ConsultantAvailabilityServlet extends HttpServlet {
 	
 	private void showAddForm(HttpServletRequest request, HttpServletResponse response)
 	        throws ServletException, IOException {
-		List<User> users = userDAO.selectAllConsultant();
+		List<User> users = consultantAvailabilityService.getAllConsultants();
 		request.setAttribute("users", users);
 	    request.getRequestDispatcher("Admin/ConsultantAvailabilities/add_consultant_availability.jsp").forward(request, response);
 	}
@@ -262,7 +261,7 @@ public class ConsultantAvailabilityServlet extends HttpServlet {
 	private void showUpdateForm(HttpServletRequest request, HttpServletResponse response)
 	        throws ServletException, IOException {
 	    int availabilityId = Integer.parseInt(request.getParameter("id"));
-	    ConsultantAvailability availability = consultantAvailabilityDAO.getConsultantAvailabilityById(availabilityId);
+	    ConsultantAvailability availability = consultantAvailabilityService.getConsultantAvailabilityById(availabilityId);
 	    request.setAttribute("availability", availability);
 	    request.getRequestDispatcher("Admin/ConsultantAvailabilities/update_consultant_availability.jsp").forward(request, response);
 	}

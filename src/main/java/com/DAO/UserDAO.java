@@ -6,15 +6,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.Model.User;
-import com.dbConnection.dbConnection;
+import com.dbConnection.DBSingletonConnection;
+
 
 public class UserDAO {
-	 private dbConnection dbConnection;
+	private DBSingletonConnection dbConnection;
+	
+	private Connection getConnection() {
+        return dbConnection.getConnection();
+    }
 
     public UserDAO() {
-    	 dbConnection = new dbConnection();
+    	dbConnection = DBSingletonConnection.getInstance();
     }
 
     private static final String INSERT_USER_SQL = "INSERT INTO user (F_name, L_name, Address, Contact_01, Contact_02, DOB, role_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -23,8 +27,9 @@ public class UserDAO {
     private static final String DELETE_USER_SQL = "UPDATE user SET is_delete = 'true' WHERE ID = ?";
     private static final String UPDATE_USER_SQL = "UPDATE user SET F_name = ?, L_name = ?, Address = ?, Contact_01 = ?, Contact_02 = ?, DOB = ?, role_id = ? WHERE Id = ?";
     private static final String SELECT_ALL_CONSULTANT = "SELECT * FROM USER WHERE role_id = 3";
+    
     public void addUser(User user) throws SQLException {
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USER_SQL)) {
             preparedStatement.setString(1, user.getF_name());
             preparedStatement.setString(2, user.getL_name());
@@ -42,7 +47,7 @@ public class UserDAO {
     public User getUserById(int userId) {
         User user = null;
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USER_BY_ID);
             preparedStatement.setInt(1, userId);
             ResultSet rs = preparedStatement.executeQuery();
@@ -66,7 +71,7 @@ public class UserDAO {
     public List<User> selectAllUsers() {
         List<User> userList = new ArrayList<>();
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_USERS);
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -89,7 +94,7 @@ public class UserDAO {
 
     public boolean deleteUser(int userId) throws SQLException {
         boolean rowDeleted = false;
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(DELETE_USER_SQL)) {
             statement.setInt(1, userId);
             rowDeleted = statement.executeUpdate() > 0;
@@ -101,7 +106,7 @@ public class UserDAO {
 
     public boolean updateUser(User user) throws SQLException {
         boolean rowUpdated = false;
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(UPDATE_USER_SQL)) {
             statement.setString(1, user.getF_name());
             statement.setString(2, user.getL_name());
@@ -121,7 +126,7 @@ public class UserDAO {
     public List<User> selectAllConsultant() {
         List<User> userList = new ArrayList<>();
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_CONSULTANT);
             ResultSet rs = preparedStatement.executeQuery();
 
