@@ -5,21 +5,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.print.DocFlavor.STRING;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.DAO.AppointmentDAO;
-import com.DAO.JobseekerDAO;
-import com.DAO.SpecializationDAO;
-import com.DAO.UserDAO;
 import com.Model.Appointment;
 import com.Model.Jobseeker;
-import com.Model.User;
 import com.Model.specialization;
+import com.service.IndexService;
 import com.validator.EntityValidator;
 
 /**
@@ -28,19 +23,16 @@ import com.validator.EntityValidator;
 @WebServlet("/IndexServelet")
 public class IndexServelet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private JobseekerDAO jobseekerDAO;
-	private SpecializationDAO specializationDAO;
-	private AppointmentDAO appointmentDAO;
+	private IndexService indexService;
+	
        
     /**
      * @see HttpServlet#HttpServlet()
      */
     public IndexServelet() {
         super();
-        jobseekerDAO = new JobseekerDAO();
-        specializationDAO = new SpecializationDAO();
-        appointmentDAO = new AppointmentDAO();
-        // TODO Auto-generated constructor stub
+        indexService = new IndexService();
+        
     }
 
 	/**
@@ -130,12 +122,12 @@ public class IndexServelet extends HttpServlet {
         	request.setAttribute("errors", errors);
         	request.setAttribute("errors1", errors1);
         	request.setAttribute("newJobseeker", newJobseeker);
-        	List<specialization> specializations = specializationDAO.SELECT_SPECIALIZATION_ALL_COUNTRY();
+        	List<specialization> specializations = indexService.getAllSpecializations();
     		request.setAttribute("specializations", specializations);
     	    request.getRequestDispatcher("index.jsp").forward(request, response);
         }
         else {
-        	JobSeekerInsertedID = jobseekerDAO.addJobseekerReurnID(newJobseeker);
+        	JobSeekerInsertedID = indexService.addJobseeker(newJobseeker);
             System.out.println(JobSeekerInsertedID);
             
             Appointment appointment = new Appointment(ConsultID, JobSeekerInsertedID, Available_id, CountryID, JobID, Note, Type);
@@ -147,20 +139,20 @@ public class IndexServelet extends HttpServlet {
             	System.out.println("!errors.isEmpty() part");
             	request.setAttribute("errors", errors2);
             	request.setAttribute("errors1", errors1);
-            	List<specialization> specializations = specializationDAO.SELECT_SPECIALIZATION_ALL_COUNTRY();
+            	List<specialization> specializations = indexService.getAllSpecializations();
         		request.setAttribute("specializations", specializations);
         	    request.getRequestDispatcher("index.jsp").forward(request, response);
             }
             else {
             	
-            	appointmentDAO.addAppointment(appointment);
+            	indexService.addAppointment(appointment);
                 request.getRequestDispatcher("IndexServelet?parameter=list").forward(request, response);
             }
         }
 	}
 
 	private void ShowIndex(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		List<specialization> specializations = specializationDAO.SELECT_SPECIALIZATION_ALL_COUNTRY();
+		List<specialization> specializations = indexService.getAllSpecializations();
 		request.setAttribute("specializations", specializations);
 	    request.getRequestDispatcher("index.jsp").forward(request, response);
 	}

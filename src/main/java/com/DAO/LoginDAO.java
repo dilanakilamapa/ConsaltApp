@@ -6,15 +6,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.Model.Login;
 import com.dbConnection.*;
 
 public class LoginDAO {
-    private dbConnection dbConnection;
+	private DBSingletonConnection dbConnection;
+	
+	private Connection getConnection() {
+        return dbConnection.getConnection();
+    }
 
     public LoginDAO() {
-        dbConnection = new dbConnection();
+    	dbConnection = DBSingletonConnection.getInstance();
     }
 
     private static final String CHECK_LOGIN_SQL = "SELECT emp_id FROM user_accounts WHERE UserName = ? AND Password = ?";
@@ -27,7 +30,7 @@ public class LoginDAO {
     public int checkLogin(String userName, String password) {
         int empId = -1;
 
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(CHECK_LOGIN_SQL)) {
             preparedStatement.setString(1, userName);
             preparedStatement.setString(2, password);
@@ -45,7 +48,7 @@ public class LoginDAO {
     }
 
     public void addLogin(Login login) throws SQLException {
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(INSERT_LOGIN_SQL)) {
             preparedStatement.setInt(1, login.getEmp_id());
             preparedStatement.setString(2, login.getUserName());
@@ -59,7 +62,7 @@ public class LoginDAO {
     public Login getLoginByEmpId(int empId) {
         Login login = null;
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_LOGIN_BY_EMP_ID);
             preparedStatement.setInt(1, empId);
             ResultSet rs = preparedStatement.executeQuery();
@@ -79,7 +82,7 @@ public class LoginDAO {
     public List<Login> selectAllLogins() {
         List<Login> loginsList = new ArrayList<>();
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_LOGINS);
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -98,7 +101,7 @@ public class LoginDAO {
 
     public boolean deleteLogin(int empId) throws SQLException {
         boolean rowDeleted = false;
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(DELETE_LOGIN_SQL)) {
             statement.setInt(1, empId);
             rowDeleted = statement.executeUpdate() > 0;
@@ -110,7 +113,7 @@ public class LoginDAO {
 
     public boolean updateLogin(Login login) throws SQLException {
         boolean rowUpdated = false;
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(UPDATE_LOGIN_SQL)) {
             statement.setString(1, login.getUserName());
             statement.setString(2, login.getPassword());

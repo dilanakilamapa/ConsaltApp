@@ -6,15 +6,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.Model.specialization;
-import com.dbConnection.dbConnection;
+import com.dbConnection.DBSingletonConnection;
 
 public class SpecializationDAO {
-	 private dbConnection dbConnection;
-
+	private DBSingletonConnection dbConnection;
+	
+	private Connection getConnection() {
+        return dbConnection.getConnection();
+    }
 	    public SpecializationDAO() {
-	        dbConnection = new dbConnection();
+	    	dbConnection = DBSingletonConnection.getInstance();
 	    }
 
 	    private static final String INSERT_SPECIALIZATION_SQL = "INSERT INTO specialization (User_ID, Country_id, Job_Title_id) VALUES (?, ?, ?)";
@@ -29,7 +31,7 @@ public class SpecializationDAO {
 	    private static final String SELECT_SPECIALIZATION_USER_USING_COUNTRY_AND_JOB = "SELECT specialization.User_ID , user.F_name , user.L_name FROM db_appointment.specialization INNER JOIN db_appointment.user ON (specialization.User_ID = user.ID) WHERE specialization.Country_id =? AND specialization.Job_Title_id = ?;";
 	    
 	    public void addSpecialization(specialization spec) throws SQLException {
-	        try (Connection connection = dbConnection.getConnection();
+	        try (Connection connection = getConnection();
 	                PreparedStatement preparedStatement = connection.prepareStatement(INSERT_SPECIALIZATION_SQL)) {
 	            preparedStatement.setInt(1, spec.getUser_ID());
 	            preparedStatement.setInt(2, spec.getCountry_id());
@@ -43,7 +45,7 @@ public class SpecializationDAO {
 	    public specialization getSpecializationById(int specId) {
 	        specialization spec = null;
 	        try {
-	            Connection connection = dbConnection.getConnection();
+	            Connection connection = getConnection();
 	            PreparedStatement preparedStatement = connection.prepareStatement(SELECT_SPECIALIZATION_BY_ID);
 	            preparedStatement.setInt(1, specId);
 	            ResultSet rs = preparedStatement.executeQuery();
@@ -64,7 +66,7 @@ public class SpecializationDAO {
 	    public List<specialization> selectAllSpecializations() {
 	        List<specialization> specList = new ArrayList<>();
 	        try {
-	            Connection connection = dbConnection.getConnection();
+	            Connection connection = getConnection();
 	            PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_SPECIALIZATIONS);
 	            ResultSet rs = preparedStatement.executeQuery();
 
@@ -83,7 +85,7 @@ public class SpecializationDAO {
 
 	    public boolean deleteSpecialization(int specId) throws SQLException {
 	        boolean rowDeleted = false;
-	        try (Connection connection = dbConnection.getConnection();
+	        try (Connection connection = getConnection();
 	                PreparedStatement statement = connection.prepareStatement(DELETE_SPECIALIZATION_SQL)) {
 	            statement.setInt(1, specId);
 	            rowDeleted = statement.executeUpdate() > 0;
@@ -95,7 +97,7 @@ public class SpecializationDAO {
 
 	    public boolean updateSpecialization(specialization spec) throws SQLException {
 	        boolean rowUpdated = false;
-	        try (Connection connection = dbConnection.getConnection();
+	        try (Connection connection = getConnection();
 	                PreparedStatement statement = connection.prepareStatement(UPDATE_SPECIALIZATION_SQL)) {
 	            statement.setInt(1, spec.getUser_ID());
 	            statement.setInt(2, spec.getCountry_id());
@@ -111,7 +113,7 @@ public class SpecializationDAO {
 	    public List<specialization> selectAllSpecializationswithname() {
 	        List<specialization> specList = new ArrayList<>();
 	        try {
-	            Connection connection = dbConnection.getConnection();
+	            Connection connection = getConnection();
 	            PreparedStatement preparedStatement = connection.prepareStatement(SELECT_SPECIALIZATION_WITH_NAME);
 	            ResultSet rs = preparedStatement.executeQuery();
 
@@ -136,7 +138,7 @@ public class SpecializationDAO {
 	    	//System.out.println(User_ID);
 	    	List<specialization> specList = new ArrayList<>();
 	        try {
-	            Connection connection = dbConnection.getConnection();
+	            Connection connection = getConnection();
 	            PreparedStatement preparedStatement = connection.prepareStatement(SELECT_SPECIALIZATION_COUNTRY_BY_USER_ID);
 	            preparedStatement.setInt(1, User_ID);
 	            ResultSet rs = preparedStatement.executeQuery();
@@ -156,7 +158,7 @@ public class SpecializationDAO {
 	    	System.out.println(User_ID);
 	    	List<specialization> specList = new ArrayList<>();
 	        try {
-	            Connection connection = dbConnection.getConnection();
+	            Connection connection = getConnection();
 	            PreparedStatement preparedStatement = connection.prepareStatement(SELECT_SPECIALIZATION_COUNTRY_BY_COUNTRY_ID);
 	            preparedStatement.setInt(1, User_ID);
 	            ResultSet rs = preparedStatement.executeQuery();
@@ -177,7 +179,7 @@ public class SpecializationDAO {
 	    public List<specialization> SELECT_SPECIALIZATION_ALL_COUNTRY() {
 	    	List<specialization> specList = new ArrayList<>();
 	        try {
-	            Connection connection = dbConnection.getConnection();
+	            Connection connection = getConnection();
 	            PreparedStatement preparedStatement = connection.prepareStatement(SELECT_SPECIALIZATION_ALL_COUNTRY);
 	            ResultSet rs = preparedStatement.executeQuery();
 
@@ -197,7 +199,7 @@ public class SpecializationDAO {
 	    public List<specialization> SELECT_SPECIALIZATION_USER_USING_COUNTRY_AND_JOB(int country_id, int Job_id) {
 	    	List<specialization> specList = new ArrayList<>();
 	        try {
-	            Connection connection = dbConnection.getConnection();
+	            Connection connection = getConnection();
 	            PreparedStatement preparedStatement = connection.prepareStatement(SELECT_SPECIALIZATION_USER_USING_COUNTRY_AND_JOB);
 	            preparedStatement.setInt(1, country_id);
 	            preparedStatement.setInt(2, Job_id);

@@ -9,13 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.Model.ConsultantAvailability;
-import com.dbConnection.dbConnection;
+import com.dbConnection.DBSingletonConnection;
 
 public class ConsultantAvailabilityDAO {
-    private dbConnection dbConnection;
+private DBSingletonConnection dbConnection;
+	
+	private Connection getConnection() {
+        return dbConnection.getConnection();
+    }
 
     public ConsultantAvailabilityDAO() {
-        dbConnection = new dbConnection();
+    	dbConnection = DBSingletonConnection.getInstance();
     }
     private static final String INSERT_CONSULTANT_AVAILABILITY_SQL = "INSERT INTO consultant_availability (User_ID, DATE, Start_Time, End_Time) VALUES (?, ?, ?, ?)";
     private static final String SELECT_CONSULTANT_AVAILABILITY_BY_ID = "SELECT * FROM consultant_availability WHERE ID = ?";
@@ -26,7 +30,7 @@ public class ConsultantAvailabilityDAO {
     private static final String SELECT_START_AND_END_TIME_BY_DATE ="SELECT * FROM consultant_availability WHERE DATE = ?";
     
     public void addConsultantAvailability(ConsultantAvailability consultantAvailability) throws SQLException {
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(INSERT_CONSULTANT_AVAILABILITY_SQL)) {
             preparedStatement.setInt(1, consultantAvailability.getUser_ID());
             preparedStatement.setDate(2, consultantAvailability.getDATE());
@@ -41,7 +45,7 @@ public class ConsultantAvailabilityDAO {
     public ConsultantAvailability getConsultantAvailabilityById(int availabilityId) {
         ConsultantAvailability consultantAvailability = null;
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection =getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_CONSULTANT_AVAILABILITY_BY_ID);
             preparedStatement.setInt(1, availabilityId);
             ResultSet rs = preparedStatement.executeQuery();
@@ -63,7 +67,7 @@ public class ConsultantAvailabilityDAO {
     public List<ConsultantAvailability> selectAllConsultantAvailabilities() {
         List<ConsultantAvailability> consultantAvailabilityList = new ArrayList<>();
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_CONSULTANT_AVAILABILITIES);
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -83,7 +87,7 @@ public class ConsultantAvailabilityDAO {
 
     public boolean deleteConsultantAvailability(int availabilityId) throws SQLException {
         boolean rowDeleted = false;
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(DELETE_CONSULTANT_AVAILABILITY_SQL)) {
             statement.setInt(1, availabilityId);
             rowDeleted = statement.executeUpdate() > 0;
@@ -95,7 +99,7 @@ public class ConsultantAvailabilityDAO {
 
     public boolean updateConsultantAvailability(ConsultantAvailability consultantAvailability) throws SQLException {
         boolean rowUpdated = false;
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
                 PreparedStatement statement = connection.prepareStatement(UPDATE_CONSULTANT_AVAILABILITY_SQL)) {
             statement.setDate(1, consultantAvailability.getDATE());
             statement.setTime(2, consultantAvailability.getStart_Time());
@@ -112,7 +116,7 @@ public class ConsultantAvailabilityDAO {
     public List<ConsultantAvailability> selectAllConsultantAvailabilitiesWithName(int User_id) {
         List<ConsultantAvailability> consultantAvailabilityList = new ArrayList<>();
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_CONSULTANT_AVAILABILITIES_WITH_NAME);
             preparedStatement.setInt(1, User_id);
             ResultSet rs = preparedStatement.executeQuery();
@@ -136,7 +140,7 @@ public class ConsultantAvailabilityDAO {
     public List<ConsultantAvailability> SELECT_START_AND_END_TIME_BY_DATE(Date date) {
         List<ConsultantAvailability> consultantAvailabilityList = new ArrayList<>();
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_START_AND_END_TIME_BY_DATE);
             preparedStatement.setDate(1, date);
             ResultSet rs = preparedStatement.executeQuery();

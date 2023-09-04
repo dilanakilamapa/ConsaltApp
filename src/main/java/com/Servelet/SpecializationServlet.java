@@ -10,15 +10,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.DAO.CountryDAO;
-import com.DAO.JobDAO;
-import com.DAO.SpecializationDAO;
-import com.DAO.UserDAO;
 import com.Model.Country;
 import com.Model.Job;
 import com.Model.User;
 import com.Model.specialization;
 import com.google.gson.Gson;
+import com.service.SpecializationService;
 import com.validator.EntityValidator;
 
 /**
@@ -27,20 +24,14 @@ import com.validator.EntityValidator;
 @WebServlet("/SpecializationServlet")
 public class SpecializationServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	 private SpecializationDAO specializationDAO;
-	 private UserDAO userDAO;
-	 private CountryDAO countryDAO;
-	 private JobDAO jobDAO;
+	 private SpecializationService specializationService;
+	
        
     /**
      * @see HttpServlet#HttpServlet()
      */
     public SpecializationServlet() {
-    	specializationDAO = new SpecializationDAO();
-    	userDAO = new UserDAO();
-    	countryDAO = new CountryDAO();
-    	jobDAO = new JobDAO();
-        // TODO Auto-generated constructor stub
+    	specializationService = new SpecializationService();
     }
 
 	/**
@@ -93,7 +84,7 @@ public class SpecializationServlet extends HttpServlet {
 	private void GetUserByCountryANDjob(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		int Coun_id = Integer.parseInt(request.getParameter("Coun_id"));
 		int Job_ID = Integer.parseInt(request.getParameter("Job_id"));
-        List<specialization> specializations = specializationDAO.SELECT_SPECIALIZATION_USER_USING_COUNTRY_AND_JOB(Coun_id,Job_ID);
+        List<specialization> specializations = specializationService.getSpecializationsByUserAndCountry(Coun_id,Job_ID);
        
         String json = new Gson().toJson(specializations);
 	    response.setContentType("application/json");
@@ -113,16 +104,16 @@ public class SpecializationServlet extends HttpServlet {
 	
 	 private void listSpecializations(HttpServletRequest request, HttpServletResponse response)
 	            throws ServletException, IOException {
-	        List<specialization> specList = specializationDAO.selectAllSpecializationswithname();
+	        List<specialization> specList = specializationService.listSpecializations();
 	        request.setAttribute("specList", specList);
 	        request.getRequestDispatcher("Admin/Specialization/list-specializations.jsp").forward(request, response);
 	    }
 
 	    private void showAddForm(HttpServletRequest request, HttpServletResponse response)
 	            throws ServletException, IOException {
-	    	List<User> users = userDAO.selectAllConsultant();
-	    	List<Country> countries =countryDAO.selectAllCountries();
-	    	List<Job> jobs = jobDAO.selectAllJobs();
+	    	List<User> users = specializationService.getAllConsultants();
+	    	List<Country> countries =specializationService.getAllCountries();
+	    	List<Job> jobs = specializationService.getAllJobs();
 	    	request.setAttribute("users", users);
 	    	request.setAttribute("countries", countries);
 	    	request.setAttribute("jobs", jobs);
@@ -157,9 +148,9 @@ public class SpecializationServlet extends HttpServlet {
 	        
 	        if(!errors.isEmpty()) {
 	        	
-	        	List<User> users = userDAO.selectAllConsultant();
-		    	List<Country> countries =countryDAO.selectAllCountries();
-		    	List<Job> jobs = jobDAO.selectAllJobs();
+	        	List<User> users = specializationService.getAllConsultants();
+		    	List<Country> countries =specializationService.getAllCountries();
+		    	List<Job> jobs = specializationService.getAllJobs();
 		    	request.setAttribute("users", users);
 		    	request.setAttribute("countries", countries);
 		    	request.setAttribute("jobs", jobs);
@@ -171,14 +162,14 @@ public class SpecializationServlet extends HttpServlet {
 	        else {
 	        	
 	        	if(!errors1.isEmpty()) {
-	        		specializationDAO.addSpecialization(spec);
+	        		specializationService.addSpecialization(spec);
 
 			        response.sendRedirect("SpecializationServlet");
 	        	}
 	        	else {
-	        		List<User> users = userDAO.selectAllConsultant();
-			    	List<Country> countries =countryDAO.selectAllCountries();
-			    	List<Job> jobs = jobDAO.selectAllJobs();
+	        		List<User> users = specializationService.getAllConsultants();
+			    	List<Country> countries =specializationService.getAllCountries();
+			    	List<Job> jobs = specializationService.getAllJobs();
 			    	request.setAttribute("users", users);
 			    	request.setAttribute("countries", countries);
 			    	request.setAttribute("jobs", jobs);
@@ -193,10 +184,10 @@ public class SpecializationServlet extends HttpServlet {
 	    private void showUpdateForm(HttpServletRequest request, HttpServletResponse response)
 	            throws ServletException, IOException {
 	        int specId = Integer.parseInt(request.getParameter("id"));
-	        specialization spec = specializationDAO.getSpecializationById(specId);
-	        List<User> users = userDAO.selectAllConsultant();
-	    	List<Country> countries =countryDAO.selectAllCountries();
-	    	List<Job> jobs = jobDAO.selectAllJobs();
+	        specialization spec = specializationService.getSpecializationById(specId);
+	        List<User> users = specializationService.getAllConsultants();
+	    	List<Country> countries =specializationService.getAllCountries();
+	    	List<Job> jobs = specializationService.getAllJobs();
 	    	request.setAttribute("users", users);
 	    	request.setAttribute("countries", countries);
 	    	request.setAttribute("jobs", jobs);
@@ -232,9 +223,9 @@ public class SpecializationServlet extends HttpServlet {
 	        
 	        if(!errors.isEmpty()) {
 	        	
-		        List<User> users = userDAO.selectAllConsultant();
-		    	List<Country> countries =countryDAO.selectAllCountries();
-		    	List<Job> jobs = jobDAO.selectAllJobs();
+	        	 List<User> users = specializationService.getAllConsultants();
+	 	    	List<Country> countries =specializationService.getAllCountries();
+	 	    	List<Job> jobs = specializationService.getAllJobs();
 		    	request.setAttribute("users", users);
 		    	request.setAttribute("countries", countries);
 		    	request.setAttribute("jobs", jobs);
@@ -247,16 +238,16 @@ public class SpecializationServlet extends HttpServlet {
 	        	
 	        	if(!errors1.isEmpty()) {
 	        		try {
-			            specializationDAO.updateSpecialization(spec);
+	        			specializationService.updateSpecialization(spec);
 			        } catch (SQLException e) {
 			            e.printStackTrace();
 			        }
 	        		response.sendRedirect("SpecializationServlet");
 	        	}
 	        	else {
-	        		List<User> users = userDAO.selectAllConsultant();
-			    	List<Country> countries =countryDAO.selectAllCountries();
-			    	List<Job> jobs = jobDAO.selectAllJobs();
+	        		List<User> users = specializationService.getAllConsultants();
+		 	    	List<Country> countries =specializationService.getAllCountries();
+		 	    	List<Job> jobs = specializationService.getAllJobs();
 			    	request.setAttribute("users", users);
 			    	request.setAttribute("countries", countries);
 			    	request.setAttribute("jobs", jobs);
@@ -272,7 +263,7 @@ public class SpecializationServlet extends HttpServlet {
 	            throws ServletException, IOException {
 	        int specId = Integer.parseInt(request.getParameter("id"));
 	        try {
-	            specializationDAO.deleteSpecialization(specId);
+	        	specializationService.deleteSpecialization(specId);
 	        } catch (SQLException e) {
 	            e.printStackTrace();
 	        }
@@ -282,7 +273,7 @@ public class SpecializationServlet extends HttpServlet {
 	    private void GetCountryByUser(HttpServletRequest request, HttpServletResponse response)
 	            throws ServletException, IOException {
 	        int USerID = Integer.parseInt(request.getParameter("User_id"));
-	        List<specialization> specializations = specializationDAO.SELECT_SPECIALIZATION_COUNTRY_BY_USER_ID(USerID);
+	        List<specialization> specializations = specializationService.getSpecializationsByUser(USerID);
 	       
 	        String json = new Gson().toJson(specializations);
 		    response.setContentType("application/json");
@@ -294,7 +285,7 @@ public class SpecializationServlet extends HttpServlet {
 	    private void GetJobNameByCountry(HttpServletRequest request, HttpServletResponse response)
 	            throws ServletException, IOException {
 	        int USerID = Integer.parseInt(request.getParameter("Coun_id"));
-	        List<specialization> specializations = specializationDAO.SELECT_SPECIALIZATION_COUNTRY_BY_COUNTRY_ID(USerID);
+	        List<specialization> specializations = specializationService.getSpecializationsByCountry(USerID);
 	       
 	        String json = new Gson().toJson(specializations);
 		    response.setContentType("application/json");

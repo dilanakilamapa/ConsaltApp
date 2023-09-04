@@ -1,19 +1,17 @@
 package com.Servelet;
 
 import java.io.IOException;
-
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.DAO.LoginDAO;
-import com.DAO.RoleDAO;
-import com.DAO.UserDAO;
+import com.Model.ConsultantAvailability;
 import com.Model.Role;
 import com.Model.User;
+import com.service.LoginService;
 
 /**
  * Servlet implementation class LoginServlet
@@ -21,17 +19,15 @@ import com.Model.User;
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private LoginDAO loginDAO;
-	private UserDAO userDAO;
-	private RoleDAO roleDAO;
+	private LoginService loginService;
+
        
     /**
      * @see HttpServlet#HttpServlet()
      */
     public LoginServlet() {
-    	loginDAO = new LoginDAO();
-    	userDAO =new UserDAO();
-    	roleDAO = new RoleDAO();
+    	loginService = new LoginService();
+
     }
 
 	/**
@@ -41,14 +37,14 @@ public class LoginServlet extends HttpServlet {
 		String userName = request.getParameter("Username");
         String password = request.getParameter("password");
 
-        int empId = loginDAO.checkLogin(userName, password);
+        int empId = loginService.checkLogin(userName, password);
         System.out.println("in serv"+ empId);
 
         if (empId != -1) {
             // Successful login
-        	User users = userDAO.getUserById(empId);
+        	User users = loginService.getUserbyID(empId);
         	System.out.println("in serv"+ users.getRole_id());
-            Role role = roleDAO.getRoleById(users.getRole_id());
+            Role role = loginService.getRoleById(users.getRole_id());
             System.out.println("in serv"+ role.getRole_name());
             
             request.setAttribute("empId", empId);
@@ -58,7 +54,20 @@ public class LoginServlet extends HttpServlet {
 			loginCookie.setMaxAge(10*60);
 			response.addCookie(loginCookie);
             
-            response.sendRedirect("Admin/Dashboard/Dashboard.jsp");
+			if(role.getRole_name().equals("Consultant")) {
+				System.out.println(role.getRole_name()+"if");
+				List<ConsultantAvailability> availabilities = loginService.getAllConsultantAvailabilities(empId);
+			    request.setAttribute("availabilities", availabilities);
+			    request.setAttribute("user", users);
+			    request.getRequestDispatcher("Admin/ConsultantAvailabilities/consultant_availabilities_for_consultant.jsp").forward(request, response);
+			}
+			else if(role.getRole_name().equals("User")) {
+				response.sendRedirect("Admin/Dashboard/DashboardForUser.jsp");
+			}
+			else {
+				response.sendRedirect("Admin/Dashboard/Dashboard.jsp");
+			}
+            
         } else {
             // Failed login
             request.setAttribute("errorMessage", "Invalid username or password !");

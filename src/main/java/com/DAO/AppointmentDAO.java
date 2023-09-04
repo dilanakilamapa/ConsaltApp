@@ -1,8 +1,7 @@
 package com.DAO;
 
 import com.Model.Appointment;
-import com.dbConnection.dbConnection;
-
+import com.dbConnection.DBSingletonConnection;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -13,12 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AppointmentDAO {
-    private dbConnection dbConnection;
-
-    public AppointmentDAO() {
-        dbConnection = new dbConnection();
+	private DBSingletonConnection dbConnection;
+	
+	private Connection getConnection() {
+        return dbConnection.getConnection();
     }
 
+    public AppointmentDAO() {
+    	dbConnection = DBSingletonConnection.getInstance();
+    }
+    
     private static final String INSERT_APPOINTMENT_SQL = "INSERT INTO appointments (Consultant_ID, JobSeeker_ID, Available_ID, Country_ID, Job_ID, Note, Appointment_Type) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String SELECT_APPOINTMENT_BY_ID = "SELECT * FROM appointments WHERE Appointment_ID = ?";
     private static final String SELECT_ALL_APPOINTMENTS = "SELECT * FROM appointments";
@@ -28,7 +31,7 @@ public class AppointmentDAO {
     private static final String SELECT_APPOINTMENT_JOIN_DATA_BY_CONSULT ="SELECT appointments.Appointment_ID , appointments.Consultant_ID , user.F_name , user.L_name , appointments.JobSeeker_ID , jobseekers.First_Name , appointments.available_id , consultant_availability.Date , consultant_availability.Start_Time , consultant_availability.End_Time , appointments.country_id , country.country_name , appointments.job_id , job.Job_name , appointments.Note , appointments.Appointment_Type FROM db_appointment.appointments INNER JOIN db_appointment.consultant_availability ON (appointments.available_id = consultant_availability.ID) INNER JOIN db_appointment.user ON (appointments.Consultant_ID = user.ID) INNER JOIN db_appointment.country ON (appointments.country_id = country.id) AND (consultant_availability.User_ID = user.ID) INNER JOIN db_appointment.job ON (job.job_id = appointments.job_id) INNER JOIN db_appointment.jobseekers ON (appointments.JobSeeker_ID = jobseekers.JobSeekers_ID) WHERE appointments.Consultant_ID = ?";
     
     public void addAppointment(Appointment appointment) throws SQLException {
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_APPOINTMENT_SQL)) {
             preparedStatement.setInt(1, appointment.getConsultant_ID());
             preparedStatement.setInt(2, appointment.getJobSeeker_ID());
@@ -46,7 +49,7 @@ public class AppointmentDAO {
     public Appointment getAppointmentById(int appointmentId) {
         Appointment appointment = null;
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_APPOINTMENT_BY_ID);
             preparedStatement.setInt(1, appointmentId);
             ResultSet rs = preparedStatement.executeQuery();
@@ -71,7 +74,7 @@ public class AppointmentDAO {
     public List<Appointment> selectAllAppointments() {
         List<Appointment> appointmentList = new ArrayList<>();
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_APPOINTMENTS);
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -106,7 +109,7 @@ public class AppointmentDAO {
 
     public boolean updateAppointment(Appointment appointment) throws SQLException {
         boolean rowUpdated = false;
-        try (Connection connection = dbConnection.getConnection();
+        try (Connection connection = getConnection();
              PreparedStatement statement = connection.prepareStatement(UPDATE_APPOINTMENT_SQL)) {
             statement.setInt(1, appointment.getConsultant_ID());
             statement.setInt(2, appointment.getJobSeeker_ID());
@@ -128,7 +131,7 @@ public class AppointmentDAO {
     	
         List<Appointment> appointmentList = new ArrayList<>();
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_APPOINTMENT_JOIN_DATA_ALL);
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -161,7 +164,7 @@ public class AppointmentDAO {
     	
         List<Appointment> appointmentList = new ArrayList<>();
         try {
-            Connection connection = dbConnection.getConnection();
+            Connection connection = getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_APPOINTMENT_JOIN_DATA_BY_CONSULT);
             preparedStatement.setInt(1,id);
             ResultSet rs = preparedStatement.executeQuery();

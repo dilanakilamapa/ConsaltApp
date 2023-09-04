@@ -10,10 +10,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.DAO.RoleDAO;
-import com.DAO.UserDAO;
 import com.Model.Role;
 import com.Model.User;
+import com.service.UserService;
 import com.validator.EntityValidator;
 
 /**
@@ -22,14 +21,13 @@ import com.validator.EntityValidator;
 @WebServlet("/UserServlet")
 public class UserServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private UserDAO userDAO;
-	private RoleDAO roleDAO;
+	private UserService userService;
     /**
      * @see HttpServlet#HttpServlet()
      */
     public UserServlet() {
-    	 userDAO = new UserDAO();
-    	 roleDAO = new RoleDAO();
+    	userService = new UserService();
+    	
     }
 
 	/**
@@ -88,14 +86,14 @@ public class UserServlet extends HttpServlet {
 	
 	private void listUsers(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<User> users = userDAO.selectAllUsers();
+        List<User> users = userService.listUsers();
         request.setAttribute("users", users);
         request.getRequestDispatcher("Admin/User/ShowAllUsers.jsp").forward(request, response);
     }
 
     private void showAddForm(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-    	List<Role> roles = roleDAO.selectAllRoles();
+    	List<Role> roles = userService.listRoles();
     	 request.setAttribute("roles", roles);
         request.getRequestDispatcher("Admin/User/AddUser.jsp").forward(request, response);
         
@@ -135,14 +133,14 @@ public class UserServlet extends HttpServlet {
         List<String> errors = validator.validate(newUser);
         
         if(!errors.isEmpty()) {
-        	List<Role> roles = roleDAO.selectAllRoles();
+        	List<Role> roles = userService.listRoles();
        	 	request.setAttribute("roles", roles);
         	request.setAttribute("errors", errors);
         	request.setAttribute("errors1", errors1);
         	request.getRequestDispatcher("Admin/User/AddUser.jsp").forward(request, response);
         }
         else {
-        	 userDAO.addUser(newUser);
+        	userService.addUser(newUser);
              response.sendRedirect("UserServlet");
         }
     }
@@ -151,8 +149,8 @@ public class UserServlet extends HttpServlet {
             throws ServletException, IOException {
         int userId = Integer.parseInt(request.getParameter("id"));
         System.out.println("update id " + userId);
-        User user = userDAO.getUserById(userId);
-        List<Role> roles = roleDAO.selectAllRoles();
+        User user = userService.getUserById(userId);
+        List<Role> roles = userService.listRoles();
    	 	request.setAttribute("roles", roles);
         request.setAttribute("user", user);
         request.getRequestDispatcher("Admin/User/UpdateUser.jsp").forward(request, response);
@@ -194,7 +192,7 @@ public class UserServlet extends HttpServlet {
         List<String> errors = validator.validate(user);
         
         if(!errors.isEmpty()) {
-        	List<Role> roles = roleDAO.selectAllRoles();
+        	List<Role> roles = userService.listRoles();
        	 	request.setAttribute("roles", roles);
         	request.setAttribute("errors", errors);
         	request.setAttribute("errors1", errors1);
@@ -203,7 +201,7 @@ public class UserServlet extends HttpServlet {
         }
         else {
         	try {
-    			userDAO.updateUser(user);
+        		userService.updateUser(user);
     		} catch (SQLException e) {
     			// TODO Auto-generated catch block
     			e.printStackTrace();
@@ -217,7 +215,7 @@ public class UserServlet extends HttpServlet {
         int userId = Integer.parseInt(request.getParameter("id"));
         System.out.println("Delete id " +userId);
         try {
-			userDAO.deleteUser(userId);
+        	userService.deleteUser(userId);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
